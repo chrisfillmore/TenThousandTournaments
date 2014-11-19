@@ -91,8 +91,8 @@ COMMIT;
 
 -- USERS->Administrators
 START TRANSACTION;
-    INSERT INTO users (first_name, last_name, group_id)
-        VALUES ('Chris', 'Fillmore', 1);
+    INSERT INTO users (first_name, last_name)
+        VALUES ('Chris', 'Fillmore');
     SELECT @last_id:=id FROM users
         ORDER BY id DESC
         LIMIT 1;
@@ -101,8 +101,8 @@ START TRANSACTION;
 COMMIT;
 
 START TRANSACTION;
-    INSERT INTO users (first_name, last_name, group_id)
-        VALUES ('Jeremy', 'Roy', 1);
+    INSERT INTO users (first_name, last_name)
+        VALUES ('Jeremy', 'Roy');
     SELECT @last_id:=id FROM users
         ORDER BY id DESC
         LIMIT 1;
@@ -111,17 +111,30 @@ START TRANSACTION;
 COMMIT;
 
 -- USERS->Referees
-INSERT INTO users (first_name, last_name, group_id)
-    VALUES ('Alexis', 'Dicks-Stephen', 3);
+START TRANSACTION;
+    INSERT INTO users (first_name, last_name)
+        VALUES ('Alexis', 'Dicks-Stephen');
+    SELECT @last_id:=id FROM users
+        ORDER BY id DESC
+        LIMIT 1;
+    INSERT INTO referees (id)
+        VALUES (@last_id);
+COMMIT;
 
-INSERT INTO users (first_name, last_name, group_id)
-    VALUES ('Maziar', 'Masoudi', 3);
-
+START TRANSACTION;
+    INSERT INTO users (first_name, last_name)
+        VALUES ('Maziar', 'Masoudi');
+    SELECT @last_id:=id FROM users
+        ORDER BY id DESC
+        LIMIT 1;
+    INSERT INTO referees (id)
+        VALUES (@last_id);
+COMMIT;
 
 -- USERS->Players
 START TRANSACTION;
-    INSERT INTO users (first_name, last_name, group_id)
-        VALUES ('Batul', 'Lamaa', 2);
+    INSERT INTO users (first_name, last_name)
+        VALUES ('Batul', 'Lamaa');
     SELECT @last_id:=id FROM users
         ORDER BY id DESC
         LIMIT 1;
@@ -130,8 +143,8 @@ START TRANSACTION;
 COMMIT;
 
 START TRANSACTION;
-    INSERT INTO users (first_name, last_name, group_id)
-        VALUES ('Jordan', 'Thiessen', 2);
+    INSERT INTO users (first_name, last_name)
+        VALUES ('Jordan', 'Thiessen');
     SELECT @last_id:=id FROM users
         ORDER BY id DESC
         LIMIT 1;
@@ -140,8 +153,8 @@ START TRANSACTION;
 COMMIT;
 
 START TRANSACTION;
-    INSERT INTO users (first_name, last_name, group_id)
-        VALUES ('Abid', 'Rana', 2);
+    INSERT INTO users (first_name, last_name)
+        VALUES ('Abid', 'Rana');
     SELECT @last_id:=id FROM users
         ORDER BY id DESC
         LIMIT 1;
@@ -150,8 +163,8 @@ START TRANSACTION;
 COMMIT;
 
 START TRANSACTION;
-    INSERT INTO users (first_name, last_name, group_id)
-        VALUES ('Wayne', 'Gretzky', 2);
+    INSERT INTO users (first_name, last_name)
+        VALUES ('Wayne', 'Gretzky');
     SELECT @last_id:=id FROM users
         ORDER BY id DESC
         LIMIT 1;
@@ -160,56 +173,64 @@ START TRANSACTION;
 COMMIT;
 
 -- TEAMS
-INSERT INTO teams (name, date_registered, rep_user_id)
+INSERT INTO teams (name, date_registered, rep_player_id)
     VALUES ('Autobots', NOW(), 5);
-INSERT INTO teams (name, date_registered, rep_user_id)
+INSERT INTO teams (name, date_registered, rep_player_id)
     VALUES ('Decepticons', NOW(), 6);
 
 
 -- PLAYERS_TEAMS_DIVISIONS_SEASONS
-INSERT INTO players_teams_divisions_seasons (player_id, team_id, division_id, season_id)
-    VALUES (5,1,1,1);
-INSERT INTO players_teams_divisions_seasons (player_id, team_id, division_id, season_id)
-    VALUES (5,2,1,1);
-INSERT INTO players_teams_divisions_seasons (player_id, team_id, division_id, season_id)
-    VALUES (5,1,2,1);
-INSERT INTO players_teams_divisions_seasons (player_id, team_id, division_id, season_id)
-    VALUES (5,2,2,1);
-INSERT INTO players_teams_divisions_seasons (player_id, team_id, division_id, season_id)
-    VALUES (6,1,1,2);
-INSERT INTO players_teams_divisions_seasons (player_id, team_id, division_id, season_id)
-    VALUES (6,2,1,2);
-INSERT INTO players_teams_divisions_seasons (player_id, team_id, division_id, season_id)
-    VALUES (6,1,2,2);
-INSERT INTO players_teams_divisions_seasons (player_id, team_id, division_id, season_id)
-    VALUES (6,2,2,2);
-INSERT INTO players_teams_divisions_seasons (player_id, team_id, division_id, season_id)
-    VALUES (6,1,1,1);
-INSERT INTO players_teams_divisions_seasons (player_id, team_id, division_id, season_id)
-    VALUES (6,2,1,1);
-INSERT INTO players_teams_divisions_seasons (player_id, team_id, division_id, season_id)
-    VALUES (6,1,2,1);
-INSERT INTO players_teams_divisions_seasons (player_id, team_id, division_id, season_id)
-    VALUES (6,2,2,1);
-INSERT INTO players_teams_divisions_seasons (player_id, team_id, division_id, season_id)
-    VALUES (5,1,1,2);
-INSERT INTO players_teams_divisions_seasons (player_id, team_id, division_id, season_id)
-    VALUES (5,2,1,2);
-INSERT INTO players_teams_divisions_seasons (player_id, team_id, division_id, season_id)
-    VALUES (5,1,2,2);
-INSERT INTO players_teams_divisions_seasons (player_id, team_id, division_id, season_id)
-    VALUES (5,2,2,2);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (1,5,1,1);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (1,5,1,2);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (2,5,1,1);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (2,5,1,2);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (1,6,2,1);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (1,6,2,2);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (2,6,2,1);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (2,6,2,2);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (1,6,1,1);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (1,6,1,2);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (2,6,1,1);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (2,6,1,2);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (1,5,2,1);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (1,5,2,2);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (2,5,2,1);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (2,5,2,2);
 
--- ADMINS_LEAGUES_TITLES
-INSERT INTO admins_leagues_titles (admin_id, league_id, title_id)
+-- ROLES
+INSERT INTO roles (title_id)
+    VALUES (1);
+INSERT INTO roles (title_id)
+    VALUES (4);
+INSERT INTO roles (title_id)
+    VALUES (5);
+
+-- ADMINS_LEAGUES_ROLES
+INSERT INTO admins_leagues_roles (admin_id, league_id, role_id)
     VALUES (1, 1, 1);
-INSERT INTO admins_leagues_titles (admin_id, league_id, title_id)
+INSERT INTO admins_leagues_roles (admin_id, league_id, role_id)
     VALUES (1, 2, 1);
-INSERT INTO admins_leagues_titles (admin_id, league_id, title_id)
+INSERT INTO admins_leagues_roles (admin_id, league_id, role_id)
     VALUES (2, 2, 1);
-INSERT INTO admins_leagues_titles (admin_id, league_id, title_id)
-    VALUES (2, 2, 5);
-INSERT INTO admins_leagues_titles (admin_id, league_id, title_id)
-    VALUES (1, 2, 4);
-INSERT INTO admins_leagues_titles (admin_id, league_id, title_id)
-    VALUES (1, 1, 4);
+INSERT INTO admins_leagues_roles (admin_id, league_id, role_id)
+    VALUES (2, 2, 3);
+INSERT INTO admins_leagues_roles (admin_id, league_id, role_id)
+    VALUES (1, 2, 2);
+INSERT INTO admins_leagues_roles (admin_id, league_id, role_id)
+    VALUES (1, 1, 2);
