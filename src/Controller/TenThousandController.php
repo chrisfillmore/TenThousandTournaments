@@ -22,43 +22,52 @@ namespace App\Controller;
 use App\Exception\TenThousandException;
 
 class TenThousandController extends AppController {
-    protected function groupMultiAssociation(array $input, array $keys) {
-        if (count($keys) > (count($input) - 1)) {
-            $error = 'Number of indices exceeds (# columns - 1)';
+    protected function groupMultiAssociation(array $rows, array $cols, array $output = []) {
+        if (count($cols) > (count($rows) - 1)) {
+            $error = 'Number of columns to group by exceeds (# rows - 1)';
             throw new TenThousandException($error);
         }
         
-        if (count($input) <= 1) { 
-            return $input;
-        } else {
-            $output = [];
-            define('LENGTH_OF__ID', 3);
-            $key = substr($keys[0], 0, -LENGTH_OF__ID);
-            //$testing = [];
-            foreach ($input as $value) {
-                //$testing[] = $value[$key]['id'];
-                if (!array_key_exists($value[$key]['id'], $output)) {
-                    $output[$value[$key]['id']] = $this->obj2array($value[$key])['_properties'];
-                    unset($value[$key]);
-                }
-                //$testing[] = $value;
-                $output[$value[$key]['id']][] = $value;
-                //unset($output[$value[$key . '_id']]);
+        if (count($cols) < 1) {  return $rows; }
+        
+        define('LENGTH_OF__ID', 3);
+        $key = substr($cols[0], 0, -LENGTH_OF__ID);
+        $testing = ['input' => $this->multiObj2Array($rows), 'output' => $output];
+        foreach ($rows as $i => $value) {
+            if (!is_int($i)) continue;
+            if (!array_key_exists($value[$key]['id'], $output)) {
+                $output[$value[$key]['id']][$key] = $this->obj2array($value[$key]);
+                //unset($rows[$i][$key]);
             }
-            //$this->set('testing', $testing);
-            //unset($keys[0]);
-            return $output;
-            /*return $this->groupMultiAssociation([
-                $input['admin']['id']
-                ],
-                [
-                    
-                ]); */
+            $testing = ['input' => $this->multiObj2Array($rows), 'output' => $output];
+            $output[$value[$key]['id']][] = $value;
         }
+
+        $this->set('testing', $testing);
+        //unset($cols[0]);
+
+        return $output;
+        /*return $this->groupMultiAssociation([
+            $rows['admin']['id']
+            ],
+            [
+
+            ]); */
         
     }
     
-    function obj2array(&$Instance) {
+    private function multiObj2Array(&$instance) {
+        $rtn = [];
+        foreach ($instance as $key => $value) {
+            if (is_object($value))
+                $rtn[$key] = $this->obj2Array($value);
+            else
+                $rtn[$key] = $value;
+        }
+        return $rtn;
+    }
+    
+    private function obj2array(&$Instance) {
         $clone = (array) $Instance;
         $rtn = array ();
         $rtn['___SOURCE_KEYS_'] = $clone;
@@ -69,6 +78,6 @@ class TenThousandController extends AppController {
             $rtn[$newkey] = &$rtn['___SOURCE_KEYS_'][$key];
         }
 
-        return $rtn;
+        return $rtn['_properties'];
     }
 }
