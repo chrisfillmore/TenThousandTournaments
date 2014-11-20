@@ -19,11 +19,14 @@
 
 namespace App\Model\Table;
 
-use UsersTable;
+use App\Model\Table\UsersTable;
 
 class AdminsTable extends UsersTable {
     public function initialize(array $config) {
-        $this->hasOne('User');
-        $this->belongsToMany(['League','Group']);
+        $this->hasOne('Users');
+        
+        $options = ['joinTable' => 'admins_leagues_roles'];
+        $this->belongsToMany('Leagues', $options);
+        $this->belongsToMany('Roles', $options);
     }
 }

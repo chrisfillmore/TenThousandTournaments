@@ -7,12 +7,17 @@
     
     <?php foreach ($leagues as $league) : ?>
     <tr>
-        <td><?php echo $league['Sport']['name']; ?></td>
-        <td><?php echo $this->Html->link($league['League']['name'],
-            array('controller' => 'leagues', 'action' => 'view',
-                $league['League']['id'])); ?></td>
+        <td><?php echo $league['sport']['name']; ?></td>
+        <td><?php echo $this->Html->link(
+                $league['name'],
+                array(
+                    'controller' => 'leagues',
+                    'action' => 'view',
+                    $league['id']
+                    )
+                ); ?>
+        </td>
     </tr>
     <?php endforeach; ?>
     <?php unset($league); ?>
 </table>
-<pre><?php echo var_dump($leagues); ?></pre>

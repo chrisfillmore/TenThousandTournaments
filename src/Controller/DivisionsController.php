@@ -1,9 +1,13 @@
 <?php
 
-class DivisionsController extends AppController {
-    public $helpers = array('Html');
-    
+namespace App\Controller;
+
+use App\Controller\TenThousandController;
+use Cake\ORM\TableRegistry;
+
+class DivisionsController extends TenThousandController {
+       
     public function index() {
-        $this->set('divisions', $this->Division->find('all'));
+        
     }
 }

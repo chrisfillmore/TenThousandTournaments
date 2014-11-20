@@ -19,11 +19,14 @@
 
 namespace App\Model\Table;
 
-use Cake\ORM\Table;
+use App\Model\Table\TenThousandTable;
 
-class DivisionsTable extends Table {
+class DivisionsTable extends TenThousandTable {
     public function initialize(array $config) {
-        $this->hasMany('Game');
-        $this->belongsToMany(['Player','Team','Season']);
+        $this->hasMany('Games');
+        
+        $belongsToMany = ['Players','Teams','Seasons'];
+        $joinTable = 'divisions_players_seasons_teams';
+        $this->multiBelongsToMany($belongsToMany, $joinTable);
     }
 }

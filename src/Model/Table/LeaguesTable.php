@@ -1,19 +1,16 @@
 <?php
 
-/* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 namespace App\Model\Table;
 
-use Cake\ORM\Table;
+use App\Model\Table\TenThousandTable;
 
-class LeaguesTable extends Table {
+class LeaguesTable extends TenThousandTable {
     public function initialize(array $config) {
-        $this->belongsTo('Sport');
-        $this->hasMany('Season');
-        $this->belongsToMany('Admin');
+        $this->belongsTo('Sports');
+        $this->hasMany('Seasons');
+        
+        $associations = ['Admins', 'Roles'];
+        $joinTable = 'admins_leagues_roles';
+        $this->multiBelongsToMany($associations, $joinTable);
     }
 }

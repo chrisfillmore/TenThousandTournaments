@@ -1,46 +1,52 @@
 <h1>
-    <?php echo $league['League']['name']; ?>
+    <?php echo $league['name']; ?>
 </h1>
 
 <p>
-    This is a <?php echo strtolower($league['Sport']['name']); ?> league.
+    This is a <?php echo strtolower($league['sport']['name']); ?> league.
 </p>
 
 <p>
-    This league has <?php echo count($league['Admin']); ?> administrators:
+    This league has <?php echo count($league['admins']); ?> administrators:
 </p>
 <ul>
-    <?php foreach ($league['Admin'] as $admin) : ?>
+    <?php foreach ($league['admins'] as $admin) : ?>
     <li>
         <?php echo $this->Html->link(
-        $admin['User']['first_name'] . ' ' . $admin['User']['last_name'],
+        $admin['user']['first_name'] . ' ' . $admin['user']['last_name'],
         array(
             'controller' => 'users',
             'action' => 'view',
-            $admin['User']['id']
+            $admin['user']['id']
             )
         ); ?>
         <ul>
-            <?php foreach ($admin['Title'] as $title) : ?>
+            <?php foreach ($admin['title'] as $title) : ?>
             <li>
                 <?php echo $title['name']; ?>
             </li>
-            <?php endforeach; ?>
-            <?php unset($title); ?>
+            <?php endforeach;
+            unset($title); ?>
         </ul>
     </li>
     <?php endforeach; ?>
     <?php unset($admin); ?>
 </ul>
 
-<p><?php echo $league['League']['name']; ?> has played <?php echo count($league['Season']); ?> 
+<p><?php echo $league['name']; ?> has played <?php echo count($league['seasons']); ?> 
 seasons:</p>
 <ul>
-    <?php foreach ($league['Season'] as $season) : ?>
-    <li><?php echo $this->Html->link($season['year'],
-        array('controller' => 'seasons', 'action' => 'view', $season['id'])); ?></li>
+    <?php foreach ($league['seasons'] as $season) : ?>
+    <li><?php echo $this->Html->link(
+            $season['year'],
+            array(
+                'controller' => 'seasons',
+                'action' => 'view',
+                $season['id']
+                )
+            ); ?></li>
     <?php endforeach; ?>
     <?php unset($season); ?>
 </ul>
-<pre><?php echo var_dump($league); ?></pre>
+<pre><?php echo var_dump($admins); ?></pre>
 <pre><?php //echo var_dump($test); ?></pre>

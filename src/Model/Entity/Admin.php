@@ -2,7 +2,7 @@
 
 namespace App\Model\Entity;
 
-use User;
+use App\Model\Entity\User;
 
 class Admin extends User {
     

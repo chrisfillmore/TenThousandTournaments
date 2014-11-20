@@ -1,19 +1,38 @@
 <?php
+namespace App\Controller;
 
-class SeasonsController extends AppController {
+use App\Controller\TenThousandController;
+use Cake\ORM\TableRegistry;
+
+class SeasonsController extends TenThousandController {
 
     public $helpers = array('Html');
     
     public function index() {
-        $this->set('seasons', $this->Season->find('all'));
+        $seasons = TableRegistry::get('Seasons');
+        $query = $seasons
+                ->find()
+                ->contain([
+                    'Divisions',
+                    'Teams',
+                    'Players',
+                    'Leagues'
+                ]);
+        $this->set('seasons', $query->toArray());
     }
     
     public function view($id = null) {
         if (!$id) { throw new NotFoundException(__('Invalid Season')); }
         
-        $season = $this->Season->findById($id);
-        if (!$season) { throw new NotFoundException(__('Invalid Season')); }
-        $this->set('season', $season);
+        $season = TableRegistry::get('Seasons');
+        $query = $season
+                ->find()
+                ->contain([
+                    'Divisions',
+                    'Teams'
+                ])
+                ->where(['Seasons.id'  => $id]);
+        $this->set('season', $query->toArray());
     }
 
 }

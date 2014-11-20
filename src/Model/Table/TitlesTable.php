@@ -19,10 +19,11 @@
 
 namespace App\Model\Table;
 
-use Cake\ORM\Table;
+use App\Model\Table\TenThousandTable;
 
-class TitlesTable extends Table {
+class TitlesTable extends TenThousandTable {
     public function initialize(array $config) {
-        $this->hasOne(['Group','Position']);
+        $associations = ['Groups', 'Roles'];
+        $this->multiHasOne($associations);
     }
 }
