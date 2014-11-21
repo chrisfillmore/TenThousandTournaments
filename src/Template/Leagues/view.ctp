@@ -7,10 +7,10 @@
 </p>
 
 <p>
-    This league has <?php echo count($league['admins']); ?> administrators:
+    This league has <?php echo count($admins); ?> administrators:
 </p>
 <ul>
-    <?php foreach ($league['admins'] as $admin) : ?>
+    <?php foreach ($admins['admins'] as $admin) : ?>
     <li>
         <?php echo $this->Html->link(
         $admin['user']['first_name'] . ' ' . $admin['user']['last_name'],
@@ -21,9 +21,9 @@
             )
         ); ?>
         <ul>
-            <?php foreach ($admin['title'] as $title) : ?>
+            <?php foreach ($admin['roles'] as $role) : ?>
             <li>
-                <?php echo $title['name']; ?>
+                <?php echo $role['name']; ?>
             </li>
             <?php endforeach;
             unset($title); ?>
@@ -48,5 +48,3 @@ seasons:</p>
     <?php endforeach; ?>
     <?php unset($season); ?>
 </ul>
-<pre><?php echo var_dump($admins); ?></pre>
-<pre><?php //echo var_dump($test); ?></pre>

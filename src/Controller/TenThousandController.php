@@ -22,6 +22,13 @@ namespace App\Controller;
 use App\Exception\TenThousandException;
 
 class TenThousandController extends AppController {
+    
+    protected function groupAssociationById(array $input, string $key) {
+        if (count($input) <= 1 || !key)
+        foreach ($input as $value)
+    }
+    
+    /*
     protected function groupMultiAssociation(array $rows, array $cols, array $output = []) {
         if (count($cols) > (count($rows) - 1)) {
             $error = 'Number of columns to group by exceeds (# rows - 1)';
@@ -47,13 +54,6 @@ class TenThousandController extends AppController {
         //unset($cols[0]);
 
         return $output;
-        /*return $this->groupMultiAssociation([
-            $rows['admin']['id']
-            ],
-            [
-
-            ]); */
-        
     }
     
     private function multiObj2Array(&$instance) {
@@ -80,4 +80,5 @@ class TenThousandController extends AppController {
 
         return $rtn['_properties'];
     }
+     */
 }
