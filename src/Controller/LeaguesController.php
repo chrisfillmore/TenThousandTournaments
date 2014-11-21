@@ -13,7 +13,8 @@ class LeaguesController extends TenThousandController {
         $query = $leagues
                 ->find()
                 ->contain([
-                    'Sports'
+                    'Sports',
+                    'Seasons'
                 ]);
         if (!$query) { throw new NotFoundException(__('No Leagues')); }
         $this->set('leagues', $query->toArray());
@@ -37,7 +38,7 @@ class LeaguesController extends TenThousandController {
         
         if (!$query) { throw new NotFoundException(__('Invalid League')); }
         $this->set('league', $query->first());
-        
+        /*
         $admins = TableRegistry::get('AdminsLeaguesRoles');
         $query = $admins
                 ->find()
@@ -62,5 +63,15 @@ class LeaguesController extends TenThousandController {
         $keys = ['admin_id'];
         $test = $this->groupMultiAssociation($query2->toArray(), $keys);
         $this->set('test', $test);
+        */
+        $league_admins = TableRegistry::get('Leagues');
+        $query3 = $league_admins
+                ->find()
+                ->contain([
+                    'Admins.Users' => ['foreignKey' => 'id'],
+                    'Roles.Titles'=> ['foreignKey' => 'id']
+                ])
+                ->where(['Leagues.id' => $id]);
+        $this->set('league_admins', $query3->toArray());
     }
 }

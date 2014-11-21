@@ -19,9 +19,9 @@
                     )
                 ); ?></td>
         <td><?php echo $season['year']; ?></td>
-        <td>
-        </td>
-       
+        <td><?php echo $season['league']; ?></td>
+        <td><?php echo $season['team']; ?></td>
+        <td><?php echo $season['player']; ?></td>
     </tr>
     <?php endforeach; ?>
     <?php unset($league); ?>
