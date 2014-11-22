@@ -10,23 +10,23 @@
     This league has <?php echo count($admins); ?> administrators:
 </p>
 <ul>
-    <?php foreach ($admins['admins'] as $admin) : ?>
+    <?php foreach ($admins as $id => $admin) : ?>
     <li>
         <?php echo $this->Html->link(
-        $admin['user']['first_name'] . ' ' . $admin['user']['last_name'],
+        $admin['name'],
         array(
             'controller' => 'users',
             'action' => 'view',
-            $admin['user']['id']
+            $id
             )
         ); ?>
         <ul>
             <?php foreach ($admin['roles'] as $role) : ?>
             <li>
-                <?php echo $role['name']; ?>
+                <?php echo $role; ?>
             </li>
             <?php endforeach;
-            unset($title); ?>
+            unset($role); ?>
         </ul>
     </li>
     <?php endforeach; ?>
