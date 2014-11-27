@@ -25,12 +25,16 @@ use Cake\Controller\Controller;
  * @link http://book.cakephp.org/3.0/en/controllers.html#the-app-controller
  */
 class AppController extends Controller {
-
+    
+    /*
+     * $navButtons
+     * Empty arrays are treated as regular buttons.
+     * Arrays with elements are treated as menus
+     */
     protected $navButtons = [
         'Home' => [],
         'About' => [],
-        'Contact' => [],
-        'Leagues' => ['test']
+        'Contact' => []
     ];
     
     protected $currentPage = 'Home';
