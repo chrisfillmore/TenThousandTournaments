@@ -26,6 +26,13 @@ use Cake\Controller\Controller;
  */
 class AppController extends Controller {
 
+    protected $navButtons = [
+        'Home',
+        'About',
+        'Contact',
+        []
+    ];
+    
 /**
  * Initialization hook method.
  *

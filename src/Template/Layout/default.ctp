@@ -12,8 +12,15 @@
  * @since         0.10.0
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
+use Cake\Core\Configure;
+use Cake\Network\Exception\NotFoundException;
 
-$cakeDescription = 'Ten Thousand Tournaments';
+if (!Configure::read('debug')):
+    throw new NotFoundException();
+endif;
+
+$title = 'Ten Thousand Tournaments';
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -21,45 +28,32 @@ $cakeDescription = 'Ten Thousand Tournaments';
     <?= $this->Html->charset() ?>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>
-            <?= $cakeDescription ?>:
+            <?= $title ?>: 
             <?= $this->fetch('title') ?>
     </title>
     <?= $this->Html->meta('icon') ?>
-
-    <?= $this->Html->css('base.css') ?>
-    <?= $this->Html->css('cake.css') ?>
-
     <?= $this->fetch('meta') ?>
     <?= $this->fetch('css') ?>
     <?= $this->fetch('script') ?>
-    <!-- Bootstrap -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">    
+    <!-- Bootstrap theme CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+    <?php
+        echo $this->Html->meta('icon');
+        // Some more Bootstrap theme CSS here
+        echo $this->Html->css('theme');
+    ?>
+</head>
+<body role="document">
+    <?= $this->element('navigation'); ?>
+    <div class="container" role="main">
+        <?= $this->Flash->render() ?>
+        <?= $this->fetch('content') ?>
+    </div>
     <!-- jQuery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-</head>
-<body>
-    <header>
-        <div class="header-title">
-                <span><?= $this->fetch('title') ?></span>
-        </div>
-        <div class="header-help">
-                <span><a target="_blank" href="http://book.cakephp.org/3.0/">Documentation</a></span>
-                <span><a target="_blank" href="http://api.cakephp.org/3.0/">API</a></span>
-        </div>
-    </header>
-    <div id="container">
-
-        <div id="content">
-                <?= $this->Flash->render() ?>
-
-                <div class="row">
-                        <?= $this->fetch('content') ?>
-                </div>
-        </div>
-        <footer>
-        </footer>
-    </div>
+    <!-- Bootstrap JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
 </body>
 </html>
