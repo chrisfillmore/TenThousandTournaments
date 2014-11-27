@@ -27,10 +27,7 @@ use Cake\View\Exception\MissingTemplateException;
  * @link http://book.cakephp.org/3.0/en/controllers/pages-controller.html
  */
 class PagesController extends AppController {
-    
-    public function initialize() {
-        $this->set('navButtons', 'test');
-    }
+
 /**
  * Displays a view
  *
@@ -64,9 +61,5 @@ class PagesController extends AppController {
             throw new NotFoundException();
         }
 
-    }
-    
-    public function navButtons() {
-        return $this->navButtons;
     }
 }

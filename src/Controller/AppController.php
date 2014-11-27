@@ -27,11 +27,13 @@ use Cake\Controller\Controller;
 class AppController extends Controller {
 
     protected $navButtons = [
-        'Home',
-        'About',
-        'Contact',
-        []
+        'Home' => [],
+        'About' => [],
+        'Contact' => [],
+        'Leagues' => ['test']
     ];
+    
+    protected $currentPage = 'Home';
     
 /**
  * Initialization hook method.
@@ -40,8 +42,10 @@ class AppController extends Controller {
  *
  * @return void
  */
-	public function initialize() {
-		$this->loadComponent('Flash');
-	}
+    public function initialize() {
+        $this->loadComponent('Flash');
+        $this->set('navButtons', $this->navButtons);
+        $this->set('currentPage', $this->currentPage);
+    }
 
 }
