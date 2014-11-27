@@ -9,7 +9,13 @@ use Cake\Utility\Hash;
 class LeaguesController extends TenThousandController {
     public $helpers = array('Html');
     
+    public function initialize() {
+        parent::initialize();
+        $this->currentPage = '';
+    }
+    
     public function index() {
+        //$this->set('navButtons', ['test' => [], 'test2' =>[]]);
         $leagues = TableRegistry::get('Leagues');
         $query = $leagues
                 ->find()

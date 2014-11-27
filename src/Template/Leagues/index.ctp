@@ -1,3 +1,5 @@
+<?php $this->layout = 'default'; ?>
+
 <h1>Leagues</h1>
 <table>
     <tr>

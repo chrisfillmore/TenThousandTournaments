@@ -1,3 +1,5 @@
+<?php $this->layout = 'default'; ?>
+
 <h1>
     <?php echo $league['name']; ?>
 </h1>

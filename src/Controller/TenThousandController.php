@@ -22,7 +22,7 @@ namespace App\Controller;
 use App\Exception\TenThousandException;
 
 class TenThousandController extends AppController {
-    
+        
     protected function recursiveObjectToArray($obj) {
         if(is_object($obj))
             $obj = $this->objectToArray($obj);
