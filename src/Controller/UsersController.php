@@ -1,5 +1,10 @@
 <?php
 
+namespace App\Controller;
+
+use App\Controller\AppController;
+use Cake\ORM\TableRegistry;
+
 class UsersController extends AppController {
     public $helpers = array('Html');
 

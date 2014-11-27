@@ -61,9 +61,9 @@ class LeaguesController extends TenThousandController {
                 ['%s %s', '{n}.admin.user.first_name', '{n}.admin.user.last_name'],
                 '{n}.role_id'
                 );
-        $splice = $this->spliceChildIntoParent($admins_roles, $roles_admins, 'name', 'roles');
+        $admins = $this->spliceChildIntoParent($admins_roles, $roles_admins, 'name', 'roles');
         // end massage, ahh....
         
-        $this->set('admins', $splice);
+        $this->set('admins', $admins);
     }
 }
