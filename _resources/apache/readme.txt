@@ -1,0 +1,1 @@
+httpd-vhosts.conf goes in \xampp\apache\conf\extra

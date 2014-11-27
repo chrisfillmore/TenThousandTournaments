@@ -1,0 +1,1 @@
+hosts goes in \Windows\System32\drivers\etc
