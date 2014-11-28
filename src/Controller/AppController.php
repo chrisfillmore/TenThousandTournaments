@@ -34,6 +34,7 @@ class AppController extends Controller {
             'current' => 'Home',
             'buttons' => []
         ];
+        
 /**
  * Initialization hook method.
  *
@@ -43,31 +44,22 @@ class AppController extends Controller {
  */
     public function initialize() {
         $this->loadComponent('Flash');
-        $this->makeNav();
+        $this->set('nav', $this->makeNav());
     }
     
     protected function makeNav(array $nav = []) {
-        
         if ($nav) {
             foreach ($nav as $key => $value)
                 $this->nav[$key] = $value;
-        } else {
-            $this->nav =
-                
         }
-        
-        if (!$this->nav['buttons']) {
-            foreach ($nav['buttons'] as $key => $value) {
-                if (!array_key_exists('controller', $value))
-                    $nav['buttons'][$key]['controller'] = 'pages';
-                if (!array_key_exists('action', $value))
-                    $nav['buttons'][$key]['action'] = $this->replaceSpaces($key);
-                if (!array_key_exists('buttons', $value))
-                    $nav['buttons'][$key]['buttons'] = [];
+        if (array_key_exists('buttons', $nav) && $nav['buttons']) {
+            foreach ($nav['buttons'] as $name => $properties) {
+                $this->nav['buttons'][$name] = $this->makeButton($name, $properties);
             }
+        } else {
+            $this->nav['buttons'] = $this->defaultButtons();
         }
-        
-        return $nav;
+        return $this->nav;
     }
     
     protected function replaceSpaces($input) {
@@ -76,12 +68,45 @@ class AppController extends Controller {
         return $output;
     }
     
-    protected function getNavButton() {
+    private function defaultButtons() {
         return
             [
-                'controller' => 'pages',
+                'About' =>
+                    [
+                        'controller' => 'pages',
+                        'action' => 'about',
+                        'buttons' => []
+                    ],
+                'Contact' => 
+                    [
+                        'controller' => 'pages',
+                        'action' => 'contact',
+                        'buttons' => []
+                    ]
+            ];
+    }
+    
+    private function defaultButtonProperties($name) {
+        if (!$name) throw new Exception('A name must be provided for this button.');
+        return
+            [
+                'controller' => $this->replaceSpaces($name),
                 'action' => 'view',
                 'buttons' => []
             ];
+    }
+    
+    private function makeButton($name, array $properties = []) {
+        if (!$name) throw new Exception('A name must be provided for this button.');
+        $buttonProperties = [];
+        
+        if  (array_key_exists('controller', $properties) && $properties['controller'] &&
+                array_key_exists('action', $properties) && $properties['action'] &&
+                array_key_exists('buttons', $properties))
+                $buttonProperties = $properties;
+        else
+            $buttonProperties = $this->defaultButtonProperties($name);
+        
+        return $buttonProperties;
     }
 }

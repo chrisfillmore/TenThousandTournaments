@@ -10,16 +10,38 @@ class LeaguesController extends TenThousandController {
     public $helpers = array('Html');
     
     public function index() {
-        $this->set('navHeading', 'Leagues');
-        $leagues = TableRegistry::get('Leagues');
-        $query = $leagues
+        $leaguesTable = TableRegistry::get('Leagues');
+        $query = $leaguesTable
                 ->find()
                 ->contain([
                     'Sports',
                     'Seasons'
                 ]);
         if (!$query) { throw new NotFoundException(__('No Leagues')); }
-        $this->set('leagues', $query->toArray());
+        $leagues = $query->toArray();
+        $this->set('leagues', $leagues);
+        
+        $leagueList = [];
+        
+        foreach ($leagues as $league)
+            $leagueList[$league['id']] = $league['name'];
+        
+        $this->set('nav', $this->makeNav(
+                [
+                    'controller' => 'pages',
+                    'action' => 'home',
+                    'buttons' =>
+                        [
+                            'Leagues' =>
+                                [
+                                    'controller' => 'leagues',
+                                    'action' => 'view',
+                                    'buttons' => $leagueList
+                                ]
+                        ]
+                ]
+            )
+        ); 
     }
     
     public function view($id = null) {
@@ -31,7 +53,7 @@ class LeaguesController extends TenThousandController {
                 ->find()
                 ->contain([
                     'Sports',
-                    'Seasons'
+                    'Seasons.Divisions'
                 ])
                 //->group('Admins.id')
                 ->where(['Leagues.id' => $id]);
@@ -44,9 +66,11 @@ class LeaguesController extends TenThousandController {
         $admins_leagues_roles = TableRegistry::get('AdminsLeaguesRoles');
         $query = $admins_leagues_roles
                 ->find()
-                ->contain([
-                    'Admins.Users' => ['foreignKey' => 'id'],
-                    'Roles.Titles'=> ['foreignKey' => 'title_id']
+                ->contain(
+                    [
+                        'Admins.Users' => ['foreignKey' => 'id'],
+                        'Roles.Titles'=> ['foreignKey' => 'title_id'
+                    ]
                 ])
                 ->where(['league_id' => $id]);
         $admins = $query->toArray();
@@ -70,12 +94,18 @@ class LeaguesController extends TenThousandController {
         
         $this->set('nav',
             [
-                'heading' => 'Ten Thousand Tournaments',
+                'heading' => $league['name'],
                 'controller' => 'leagues',
                 'action' => 'view',
                 'buttons' =>
                     [
-                        'Divisions' => $this->getNavButton();
+                        'Divisions' => $this->makeNav(
+                            [
+                                'controller' => 'divisions',
+                                'action' => 'view',
+                                'buttons' => []
+                            ]
+                        )
                     ]
             ]); 
     }
