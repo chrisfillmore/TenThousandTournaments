@@ -69,9 +69,8 @@ class LeaguesController extends TenThousandController {
                 ->contain(
                     [
                         'Admins.Users' => ['foreignKey' => 'id'],
-                        'Roles.Titles'=> ['foreignKey' => 'title_id'
-                    ]
-                ])
+                        'Roles.Titles'=> ['foreignKey' => 'title_id']
+                    ])
                 ->where(['league_id' => $id]);
         $admins = $query->toArray();
         
@@ -92,21 +91,21 @@ class LeaguesController extends TenThousandController {
         
         $this->set('admins', $admins);
         
-        $this->set('nav',
+        $this->set('nav', $this->makeNav(
             [
                 'heading' => $league['name'],
                 'controller' => 'leagues',
-                'action' => 'view',
+                'action' => 'view/' . $league['id'],
                 'buttons' =>
                     [
-                        'Divisions' => $this->makeNav(
+                        'Divisions' => 
                             [
                                 'controller' => 'divisions',
-                                'action' => 'view',
+                                'action' => '',
                                 'buttons' => []
                             ]
-                        )
+                        //'Seasons' =>
                     ]
-            ]); 
+            ])); 
     }
 }

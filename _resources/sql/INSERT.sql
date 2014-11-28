@@ -22,7 +22,7 @@ INSERT INTO leagues (name, sport_id)
 INSERT INTO leagues (name, sport_id)
     VALUES ('Toronto Leisure Ball', 2);
 INSERT INTO leagues (name, sport_id)
-    VALUES ('Senior\'s Hockey League', 1);
+    VALUES ('Senior Hockey League', 1);
 INSERT INTO leagues (name, sport_id)
     VALUES ('Football Toronto', 3);
 
@@ -33,14 +33,26 @@ INSERT INTO seasons (year, league_id)
     VALUES (2013, 1);
 INSERT INTO seasons (year, league_id)
     VALUES (2014, 2);
+INSERT INTO seasons (year, league_id)
+    VALUES (2014, 3);
+INSERT INTO seasons (year, league_id)
+    VALUES (2013, 3);
+INSERT INTO seasons (year, league_id)
+    VALUES (2012, 3);
 
 -- DIVISIONS
 INSERT INTO divisions (name, rank)
-    VALUES ('Molson Canadian', 1);
+    VALUES ('Molson Canadian', 5);
 INSERT INTO divisions (name, rank)
-    VALUES ('Labbatt Blue', 2);
+    VALUES ('Labbatt Blue', 4);
 INSERT INTO divisions (name, rank)
-    VALUES ('Creemore Springs', 3);
+    VALUES ('Creemore Springs', 1);
+INSERT INTO divisions (name, rank)
+    VALUES ('Maximum Ice', 6);
+INSERT INTO divisions (name, rank)
+    VALUES ('Steamwhistle', 2);
+INSERT INTO divisions (name, rank)
+    VALUES ('Wellington', 3);
 
 -- TITLES & GROUPS
 START TRANSACTION;
@@ -176,11 +188,39 @@ START TRANSACTION;
         VALUES (@last_id);
 COMMIT;
 
+START TRANSACTION;
+    INSERT INTO users (first_name, last_name)
+        VALUES ('Bobby', 'Orr');
+    SELECT @last_id:=id FROM users
+        ORDER BY id DESC
+        LIMIT 1;
+    INSERT INTO players (id)
+        VALUES (@last_id);
+COMMIT;
+
+START TRANSACTION;
+    INSERT INTO users (first_name, last_name)
+        VALUES ('Mario', 'Lemieux');
+    SELECT @last_id:=id FROM users
+        ORDER BY id DESC
+        LIMIT 1;
+    INSERT INTO players (id)
+        VALUES (@last_id);
+COMMIT;
+
 -- TEAMS
 INSERT INTO teams (name, date_registered, rep_player_id)
     VALUES ('Autobots', NOW(), 5);
 INSERT INTO teams (name, date_registered, rep_player_id)
     VALUES ('Decepticons', NOW(), 6);
+INSERT INTO teams (name, date_registered, rep_player_id)
+    VALUES ('Empire', NOW(), 7);
+INSERT INTO teams (name, date_registered, rep_player_id)
+    VALUES ('Rebel Alliance', NOW(), 8);
+INSERT INTO teams (name, date_registered, rep_player_id)
+    VALUES ('Thelma', NOW(), 9;
+INSERT INTO teams (name, date_registered, rep_player_id)
+    VALUES ('Louise', NOW(), 10);
 
 
 -- PLAYERS_TEAMS_DIVISIONS_SEASONS
@@ -216,6 +256,72 @@ INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, 
     VALUES (2,5,2,1);
 INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
     VALUES (2,5,2,2);
+
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (3,5,1,1);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (3,5,1,2);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (4,5,1,1);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (4,5,1,2);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (3,6,2,1);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (3,6,2,2);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (4,6,2,1);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (4,6,2,2);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (3,6,1,1);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (3,6,1,2);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (4,6,1,1);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (4,6,1,2);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (3,5,2,1);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (3,5,2,2);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (4,5,2,1);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (4,5,2,2);
+
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (5,5,1,1);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (5,5,1,2);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (6,5,1,1);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (6,5,1,2);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (5,6,2,1);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (5,6,2,2);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (6,6,2,1);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (6,6,2,2);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (5,6,1,1);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (5,6,1,2);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (6,6,1,1);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (6,6,1,2);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (5,5,2,1);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (5,5,2,2);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (6,5,2,1);
+INSERT INTO divisions_players_seasons_teams (division_id, player_id, season_id, team_id)
+    VALUES (6,5,2,2);
 
 -- ROLES
 INSERT INTO roles (title_id)

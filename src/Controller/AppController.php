@@ -56,7 +56,7 @@ class AppController extends Controller {
             foreach ($nav['buttons'] as $name => $properties) {
                 $this->nav['buttons'][$name] = $this->makeButton($name, $properties);
             }
-        } else {
+        } elseif (!array_key_exists('buttons', $nav)) {
             $this->nav['buttons'] = $this->defaultButtons();
         }
         return $this->nav;
@@ -91,7 +91,7 @@ class AppController extends Controller {
         return
             [
                 'controller' => $this->replaceSpaces($name),
-                'action' => 'view',
+                'action' => '',
                 'buttons' => []
             ];
     }
