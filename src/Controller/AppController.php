@@ -26,19 +26,14 @@ use Cake\Controller\Controller;
  */
 class AppController extends Controller {
     
-    /*
-     * $navButtons
-     * Empty arrays are treated as regular buttons.
-     * Arrays with elements are treated as menus
-     */
-    protected $navButtons = [
-        'Home' => [],
-        'About' => [],
-        'Contact' => []
-    ];
-    
-    protected $currentPage = 'Home';
-    
+    protected $nav =
+        [
+            'heading' => 'Ten Thousand Tournaments',
+            'controller' => 'pages',
+            'action' => 'home',
+            'current' => 'Home',
+            'buttons' => []
+        ];
 /**
  * Initialization hook method.
  *
@@ -48,8 +43,45 @@ class AppController extends Controller {
  */
     public function initialize() {
         $this->loadComponent('Flash');
-        $this->set('navButtons', $this->navButtons);
-        $this->set('currentPage', $this->currentPage);
+        $this->makeNav();
     }
-
+    
+    protected function makeNav(array $nav = []) {
+        
+        if ($nav) {
+            foreach ($nav as $key => $value)
+                $this->nav[$key] = $value;
+        } else {
+            $this->nav =
+                
+        }
+        
+        if (!$this->nav['buttons']) {
+            foreach ($nav['buttons'] as $key => $value) {
+                if (!array_key_exists('controller', $value))
+                    $nav['buttons'][$key]['controller'] = 'pages';
+                if (!array_key_exists('action', $value))
+                    $nav['buttons'][$key]['action'] = $this->replaceSpaces($key);
+                if (!array_key_exists('buttons', $value))
+                    $nav['buttons'][$key]['buttons'] = [];
+            }
+        }
+        
+        return $nav;
+    }
+    
+    protected function replaceSpaces($input) {
+        $output = strtolower($input);
+        $output = str_replace(' ', '_', $output);
+        return $output;
+    }
+    
+    protected function getNavButton() {
+        return
+            [
+                'controller' => 'pages',
+                'action' => 'view',
+                'buttons' => []
+            ];
+    }
 }

@@ -8,34 +8,44 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
-            </button><?=
-            $this->Html->link(
-                    'Ten Thousand Tournaments',
+            </button><?php
+            if ($nav['heading']) {
+                echo $this->Html->link(
+                    $nav['heading'],
                     [
-                        'controller' => 'pages',
-                        'action' => 'home'
+                        'controller' => $nav['controller'],
+                        'action' => $nav['action']
                     ],
                     ['class' => 'navbar-brand']
-                ); ?>
+                );
+            } ?>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
             <?php
-            foreach ($navButtons as $name => $menu) :
-                if ($menu) : ?>
+            foreach ($nav['buttons'] as $name => $menu) :
+                if ($menu['buttons']) : ?>
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" 
                role="button" aria-expanded="false">
                         <?= $name; ?><span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu" role="menu"><?php
-                        foreach ($menu as $link) : ?>
-                            <li><a href="#"><?= $link; ?></a></li><?php
+                        foreach ($menu['buttons'] as $id => $link) : ?>
+                            <li><?php echo $this->Html->link(
+                                    $link,
+                                    [
+                                        'controller' => $menu['controller'],
+                                        'action' => $menu['action'],
+                                        $id
+                                    ]
+                                ); ?>
+                            </li><?php
                         endforeach; ?>
                     </ul>
                 </li><?php
                 continue;
-                elseif (strtolower($name) == $currentPage) : ?>
+                elseif ($name == $nav['current']) : ?>
                     <li class="active"><?php
                 else : ?>
                     <li><?php
@@ -43,8 +53,8 @@
                 echo $this->Html->link(
                         $name,
                         [
-                            'controller' => 'pages',
-                            'action' => strtolower($name)
+                            'controller' => $menu['controller'],
+                            'action' => $menu['action']
                         ]
                     ); ?>
                     </li><?php

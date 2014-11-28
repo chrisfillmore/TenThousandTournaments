@@ -9,13 +9,8 @@ use Cake\Utility\Hash;
 class LeaguesController extends TenThousandController {
     public $helpers = array('Html');
     
-    public function initialize() {
-        parent::initialize();
-        $this->currentPage = '';
-    }
-    
     public function index() {
-        //$this->set('navButtons', ['test' => [], 'test2' =>[]]);
+        $this->set('navHeading', 'Leagues');
         $leagues = TableRegistry::get('Leagues');
         $query = $leagues
                 ->find()
@@ -31,8 +26,8 @@ class LeaguesController extends TenThousandController {
         if (!$id) { throw new NotFoundException(__('Invalid League')); }
         
         // Get info about the league
-        $league = TableRegistry::get('Leagues');
-        $query = $league
+        $leaguesTable = TableRegistry::get('Leagues');
+        $query = $leaguesTable
                 ->find()
                 ->contain([
                     'Sports',
@@ -42,7 +37,8 @@ class LeaguesController extends TenThousandController {
                 ->where(['Leagues.id' => $id]);
         
         if (!$query) { throw new NotFoundException(__('Invalid League')); }
-        $this->set('league', $query->first());
+        $league = $query->first();
+        $this->set('league', $league);
         
         // Get info about league admins and their roles
         $admins_leagues_roles = TableRegistry::get('AdminsLeaguesRoles');
@@ -71,5 +67,16 @@ class LeaguesController extends TenThousandController {
         // end massage, ahh....
         
         $this->set('admins', $admins);
+        
+        $this->set('nav',
+            [
+                'heading' => 'Ten Thousand Tournaments',
+                'controller' => 'leagues',
+                'action' => 'view',
+                'buttons' =>
+                    [
+                        'Divisions' => $this->getNavButton();
+                    ]
+            ]); 
     }
 }

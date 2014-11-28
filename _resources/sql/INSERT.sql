@@ -21,6 +21,10 @@ INSERT INTO leagues (name, sport_id)
     VALUES ('Toronto Recreational Hockey', 1);
 INSERT INTO leagues (name, sport_id)
     VALUES ('Toronto Leisure Ball', 2);
+INSERT INTO leagues (name, sport_id)
+    VALUES ('Senior\'s Hockey League', 1);
+INSERT INTO leagues (name, sport_id)
+    VALUES ('Football Toronto', 3);
 
 -- SEASONS
 INSERT INTO seasons (year, league_id)
