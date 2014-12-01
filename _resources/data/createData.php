@@ -20,6 +20,7 @@ define('NUM_BASEBALL_LEAGUES', 2);
 define('NUM_FOOTBALL_LEAGUES', 2);
 define('NUM_BASKETBALL_LEAGUES', 2);
 define('NUM_SOCCER_LEAGUES', 2);
+define('NUM_LOCATIONS', 312);
 
 // Create a basic INSERT statement
 function createInsert(array $values, $table, array $columns) {
@@ -296,7 +297,7 @@ unset($value);
 
 /* Games */
 
-$data =
+$game =
         [
             'home_team_id' => null,
             'away_team_id' => null,
@@ -305,9 +306,69 @@ $data =
             'season_id' => null
         ];
 
+$data = [];
+
+function seasonYear($id) {
+    $years =
+            [
+                1 => 2005,
+                2 => 2006,
+                3 => 2007,
+                4 => 2008,
+                5 => 2009,
+                6 => 2010,
+                7 => 2011,
+                8 => 2012,
+                9 => 2013,
+                0 => 2014,
+            ];
+    $i = $id % 10;
+    return $years[$i];
+}
+
+function teamSeasonBracket($s) {
+    if ($s >= 1 && $s <= 10) return [1, 20];
+    if ($s >= 11 && $s <= 20) return [21, 40];
+    if ($s >= 21 && $s <= 30) return [41, 60];
+    if ($s >= 31 && $s <= 40) return [61, 80];
+    if ($s >= 41 && $s <= 50) return [81, 100];
+    if ($s >= 51 && $s <= 60) return [101, 120];
+    if ($s >= 61 && $s <= 70) return [121, 140];
+    if ($s >= 71 && $s <= 80) return [141, 160];
+    if ($s >= 81 && $s <= 90) return [161, 180];
+    if ($s >= 91 && $s <= 100) return [181, 200];
+}
+
 for ($s = 1; $s <= NUM_SEASONS; $s++) {
-    for ($t = 1; $t <= NUM_TEAMS; $t++) {
-        $i = $t % 20;
-        for ($g = )
+    $year = seasonYear($s);
+    $game['season_id'] = $s;
+    $range = teamSeasonBracket($s);
+    for ($h_t = $range[0]; $h_t <= $range[1]; $h_t++) {
+        $game['home_team_id'] = $h_t;
+        $i = $h_t % 20;
+        $start = $h_t - $i + 1;
+        if ($start >= $h_t && $i != 1) $start = $start - 20;
+        for ($a_t = $start; $a_t < $start + 20; $a_t++) {
+            if ($a_t == $h_t) continue;
+            $game['location_id'] = rand(1, NUM_LOCATIONS);
+            $date_time = rand(strtotime($year . '-01-01'), strtotime($year . '-12-31'));
+            $game['date_time'] = date('Y-m-d H:00:00', $date_time);
+            $game['away_team_id'] = $a_t;
+            $data[] = $game;
+        }
     }
 }
+
+$table = 'games';
+$columns = array_keys($game);
+
+$inserts = createInserts($data, $table, $columns);
+
+foreach ($inserts as $value)
+    echo $value . '<br>';
+
+unset($data);
+unset($table);
+unset($columns);
+unset($inserts);
+unset($value);
