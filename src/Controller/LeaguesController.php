@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Controller\TenThousandController;
 use Cake\ORM\TableRegistry;
 use Cake\Utility\Hash;
+use Cake\Network\Exception\NotFoundException;
 
 class LeaguesController extends TenThousandController {
     public $helpers = array('Html');
@@ -74,6 +75,7 @@ class LeaguesController extends TenThousandController {
                     ])
                 ->where(['league_id' => $id]);
         $admins = $query->toArray();
+        if (!$admins) { throw new NotFoundException(__('No Admins')); }
         
         // Begin seriously massaging the data
         $admins = $this->recursiveObjectToArray($admins);

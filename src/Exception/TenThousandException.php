@@ -17,6 +17,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+namespace App\Exception;
+
+use Cake\Core\Exception\Exception;
+
 class TenThousandException extends Exception {
     
 }

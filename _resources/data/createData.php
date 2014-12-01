@@ -106,23 +106,21 @@ foreach ($team_name_files as $team_name_file) {
     $data[] = [$line];
 }
 
-for ($t = 1; $t <= 40; $t++)
-    $data[$t - 1][] = ($t % 2) + 1;
-for ($t = 41; $t <= 80; $t++)
-    $data[$t - 1][] = ($t % 2) + 3;
-for ($t = 81; $t <= 120; $t++)
-    $data[$t - 1][] = ($t % 2) + 5;
-for ($t = 121; $t <= 160; $t++)
-    $data[$t - 1][] = ($t % 2) + 7;
-for ($t = 161; $t <= 200; $t++)
-    $data[$t - 1][] = ($t % 2) + 9;
+for ($t = 1; $t <= NUM_HOCKEY_TEAMS; $t++)
+    $data[$t - 1][] = $t / (NUM_HOCKEY_TEAMS / 2) <= 1 ? 1 : 2;
+for ($t = 41; $t <= NUM_BASEBALL_TEAMS + 40; $t++)
+    $data[$t - 1][] = $t / ((NUM_BASEBALL_TEAMS + 40) / 2) <= 1 ? 3 : 4;
+for ($t = 81; $t <= NUM_FOOTBALL_TEAMS + 80; $t++)
+    $data[$t - 1][] = $t / ((NUM_FOOTBALL_TEAMS + 80) / 2) <= 1 ? 5 : 6; 
+for ($t = 121; $t <= NUM_BASEBALL_TEAMS + 120; $t++)
+    $data[$t - 1][] = $t / ((NUM_BASEBALL_TEAMS + 120) / 2) <= 1 ? 7 : 8;
+for ($t = 161; $t <= NUM_SOCCER_TEAMS + 160; $t++)
+    $data[$t - 1][] = $t / ((NUM_SOCCER_TEAMS + 160) / 2) <= 1 ? 9 : 10;
 
 $table = 'teams';
 $columns = ['name', 'league_id'];
 
 $inserts = createInserts($data, $table, $columns);
-
-//echo var_dump($inserts);
 
 foreach ($inserts as $value)
   echo $value . '<br>';
@@ -167,33 +165,63 @@ unset($childTable);
 
 $data = [];
 
-for ($s = 1; $s <= NUM_HOCKEY_SEASONS; $s++) {
-    for($t = 1; $t <= NUM_HOCKEY_TEAMS; $t++) {
-        $data[] = [$s, $t];
+for ($s = 1; $s <= NUM_HOCKEY_SEASONS; $s++) {    
+    if ($s / 10 <= 1) {
+        for ($t = 1; $t <= NUM_HOCKEY_TEAMS / 2; $t++) {
+            $data[] = [$s, $t];
+        }
+    } else {
+        for ($t = 21; $t <= NUM_HOCKEY_TEAMS; $t++) {
+            $data[] = [$s, $t];
+        }
     }
 }
 
-for ($s = 21; $s <= NUM_BASEBALL_SEASONS + 20; $s++) {
-    for($t = 1; $t <= NUM_BASEBALL_TEAMS; $t++) {
-        $data[] = [$s, $t];
+for ($s = 21; $s <= NUM_BASEBALL_SEASONS + 20; $s++) {    
+    if ($s / 30 <= 1) {
+        for ($t = 41; $t <= NUM_BASEBALL_TEAMS / 2 + 40; $t++) {
+            $data[] = [$s, $t];
+        }
+    } else {
+        for ($t = 61; $t <= NUM_BASEBALL_TEAMS + 40; $t++) {
+            $data[] = [$s, $t];
+        }
     }
 }
 
-for ($s = 41; $s <= NUM_FOOTBALL_SEASONS + 40; $s++) {
-    for($t = 1; $t <= NUM_FOOTBALL_TEAMS; $t++) {
-        $data[] = [$s, $t];
+for ($s = 41; $s <= NUM_FOOTBALL_SEASONS + 40; $s++) {    
+    if ($s / 50 <= 1 ) {
+        for ($t = 81; $t <= NUM_FOOTBALL_TEAMS / 2 + 80; $t++) {
+            $data[] = [$s, $t];
+        }
+    } else {
+        for ($t = 101; $t <= NUM_FOOTBALL_TEAMS + 80; $t++) {
+            $data[] = [$s, $t];
+        }
     }
 }
 
-for ($s = 61; $s <= NUM_BASKETBALL_SEASONS + 60; $s++) {
-    for($t = 1; $t <= NUM_BASKETBALL_TEAMS; $t++) {
-        $data[] = [$s, $t];
+for ($s = 61; $s <= NUM_BASKETBALL_SEASONS + 60; $s++) {    
+    if ($s / 70 <= 1) {
+        for ($t = 121; $t <= NUM_BASKETBALL_TEAMS / 2 + 120; $t++) {
+            $data[] = [$s, $t];
+        }
+    } else {
+        for ($t = 141; $t <= NUM_BASKETBALL_TEAMS + 120; $t++) {
+            $data[] = [$s, $t];
+        }
     }
 }
 
-for ($s = 81; $s <= NUM_SOCCER_SEASONS + 80; $s++) {
-    for($t = 1; $t <= NUM_SOCCER_TEAMS; $t++) {
-        $data[] = [$s, $t];
+for ($s = 81; $s <= NUM_SOCCER_SEASONS + 80; $s++) {    
+    if ($s / 90 <= 1) {
+        for ($t = 161; $t <= NUM_SOCCER_TEAMS / 2 + 160; $t++) {
+            $data[] = [$s, $t];
+        }
+    } else {
+        for ($t = 181; $t <= NUM_SOCCER_TEAMS + 160; $t++) {
+            $data[] = [$s, $t];
+        }
     }
 }
 
@@ -239,3 +267,47 @@ unset($table);
 unset($columns);
 unset($inserts);
 unset($value);
+
+/* Locations */
+$suffixes = ['Centre', 'Complex', 'Plaza', 'Sportsplex', 'Field', 'Arena'];
+
+define('LOCATIONS_FILE', 'location_names.txt');
+$locations = file(LOCATIONS_FILE);
+
+$data = [];
+
+foreach ($locations as $value) {
+    $data[] = [$value];
+}
+
+$table = 'locations';
+$columns = ['name'];
+
+$inserts = createInserts($data, $table, $columns);
+
+foreach ($inserts as $value)
+    echo $value . '<br>';
+
+unset($data);
+unset($table);
+unset($columns);
+unset($inserts);
+unset($value);
+
+/* Games */
+
+$data =
+        [
+            'home_team_id' => null,
+            'away_team_id' => null,
+            'date_time' => null,
+            'location_id' => null,
+            'season_id' => null
+        ];
+
+for ($s = 1; $s <= NUM_SEASONS; $s++) {
+    for ($t = 1; $t <= NUM_TEAMS; $t++) {
+        $i = $t % 20;
+        for ($g = )
+    }
+}

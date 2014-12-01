@@ -17,11 +17,13 @@ class GamesController extends TenThousandController {
                 ->find()
                 ->contain([
                     'Locations',
-                    'Teams'
+                    'Teams' => ['foreignKey' => 'id'],
+                    'Seasons.Leagues'
                 ])
                 ->where(['Games.season_id' => $id]);
         if (!$query) { throw new NotFoundException(__('No Season')); }
         
-        
+        $season = $query->toArray();
+        $this->set('season', $season);
     }
 }
