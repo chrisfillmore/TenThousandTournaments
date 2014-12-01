@@ -53,7 +53,8 @@ class LeaguesController extends TenThousandController {
                 ->find()
                 ->contain([
                     'Sports',
-                    'Seasons.Divisions'
+                    'Teams',
+                    'Seasons'
                 ])
                 //->group('Admins.id')
                 ->where(['Leagues.id' => $id]);
@@ -91,6 +92,10 @@ class LeaguesController extends TenThousandController {
         
         $this->set('admins', $admins);
         
+        $seasons = $this->recursiveObjectToArray($league['seasons']);
+        $seasons = Hash::combine($seasons, '{n}.id', '{n}.year');
+        $teams = $this->recursiveObjectToArray($league['teams']);
+        $teams = Hash::combine($teams, '{n}.id', '{n}.name');
         $this->set('nav', $this->makeNav(
             [
                 'heading' => $league['name'],
@@ -98,13 +103,18 @@ class LeaguesController extends TenThousandController {
                 'action' => 'view/' . $league['id'],
                 'buttons' =>
                     [
-                        'Divisions' => 
+                        'Seasons' => 
                             [
-                                'controller' => 'divisions',
-                                'action' => '',
-                                'buttons' => []
+                                'controller' => 'seasons',
+                                'action' => 'view',
+                                'buttons' => $seasons
+                            ],
+                        'Teams' =>
+                            [
+                                'controller' => 'teams',
+                                'action' => 'view',
+                                'buttons' => $teams
                             ]
-                        //'Seasons' =>
                     ]
             ])); 
     }

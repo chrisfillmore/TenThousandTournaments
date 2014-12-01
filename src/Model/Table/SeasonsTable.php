@@ -24,9 +24,7 @@ use App\Model\Table\TenThousandTable;
 class SeasonsTable extends TenThousandTable {
     public function initialize(array $config) {
         $this->belongsTo('Leagues');
-        
-        $associations = ['Divisions', 'Players', 'Teams'];
-        $joinTable = 'divisions_players_seasons_teams';
-        $this->multiBelongsToMany($associations, $joinTable);
+        $this->belongsToMany('Teams');
+        $this->hasMany('Games');
     }
 }
