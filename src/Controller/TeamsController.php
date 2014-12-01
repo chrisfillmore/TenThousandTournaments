@@ -27,4 +27,47 @@ class TeamsController extends TenThousandController {
     public function index() {
         
     }
+    
+    public function schedule($id = null) {
+        
+        if (!$id) { throw new NotFoundException(__('Invalid Season')); }
+
+        $gamesTable = TableRegistry::get('HomeGames');
+        $query = $gamesTable
+                ->find()
+                ->contain([
+                    'Teams',
+                    'Leagues',
+                    'Games'
+                ])
+                ->where(['HomeGames.home_team_id' => $id]);
+        if (!$query) { throw new NotFoundException(__('No Season')); }
+        
+        $this->set('games', $query->toArray());
+        
+        
+        
+        $this->set('nav', $this->makeNav(
+                [
+                    'heading' => $season['league']['name'],
+                    'controller' => 'leagues',
+                    'action' => 'view/' . $season['league']['id'],
+                    'buttons' =>
+                    [
+                        $season['year'] . ' Season' =>
+                        [
+                            'controller' => 'seasons',
+                            'action' => 'view/' . $season['id'],
+                            'buttons' => []
+                        ],
+                        'Teams' =>
+                        [
+                            'controller' => 'teams',
+                            'action' => 'schedule',
+                            'buttons' => $teams
+                        ]
+                    ]
+                ]));
+        
+    }
 }

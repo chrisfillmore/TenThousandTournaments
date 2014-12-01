@@ -23,11 +23,21 @@ use App\Model\Table\TenThousandTable;
 
 class TeamsTable extends TenThousandTable {
     public function initialize(array $config) {
-        $this->hasOne('Players');
-        $this->belongsTo('Games');
-        
-        $associations = ['Divisions', 'Players', 'Seasons'];
-        $joinTable = 'divisions_players_seasons_teams';
-        $this->multiBelongsToMany($associations, $joinTable);
+        $this->belongsToMany('Seasons');
+        $this->belongsToMany('Players');
+        $this->hasMany(
+                    'HomeGames',
+                    [
+                        'className' => 'Games',
+                        'foreignKey' => 'home_team_id'
+                    ]
+                );
+        $this->hasMany(
+                    'AwayGames',
+                    [
+                        'className' => 'Games',
+                        'foreignKey' => 'away_team_id'
+                    ]
+                );
     }
 }

@@ -48,14 +48,57 @@ class SeasonsController extends TenThousandController {
                     [
                         'Schedule' =>
                         [
-                            'controller' => 'games',
-                            'action' => 'season/' . $season['id'],
+                            'controller' => 'seasons',
+                            'action' => 'schedule/' . $season['id'],
                             'buttons' => []
                         ],
                         'Teams' =>
                         [
                             'controller' => 'teams',
                             'action' => 'view',
+                            'buttons' => $teams
+                        ]
+                    ]
+                ]));
+    }
+    
+    public function schedule($id = null) {
+        if (!$id) { throw new NotFoundException(__('Invalid Season')); }
+
+        $seasonsTable = TableRegistry::get('Seasons');
+        $query = $seasonsTable
+                ->find()
+                ->contain([
+                    'Teams',
+                    'Leagues',
+                    'Games'
+                ])
+                ->where(['Seasons.id' => $id]);
+        if (!$query) { throw new NotFoundException(__('No Season')); }
+        
+        $season = $query->first();
+        $this->set('season', $season);
+        
+        $teams = $this->recursiveObjectToArray($season['teams']);
+        $teams = Hash::combine($teams, '{n}.id', '{n}.name');
+        
+        $this->set('nav', $this->makeNav(
+                [
+                    'heading' => $season['league']['name'],
+                    'controller' => 'leagues',
+                    'action' => 'view/' . $season['league']['id'],
+                    'buttons' =>
+                    [
+                        $season['year'] . ' Season' =>
+                        [
+                            'controller' => 'seasons',
+                            'action' => 'view/' . $season['id'],
+                            'buttons' => []
+                        ],
+                        'Teams' =>
+                        [
+                            'controller' => 'teams',
+                            'action' => 'schedule',
                             'buttons' => $teams
                         ]
                     ]

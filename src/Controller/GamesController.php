@@ -23,7 +23,7 @@ class GamesController extends TenThousandController {
                 ->where(['Games.season_id' => $id]);
         if (!$query) { throw new NotFoundException(__('No Season')); }
         
-        $season = $query->toArray();
+        $games = $query->toArray();
         $this->set('season', $season);
     }
 }
