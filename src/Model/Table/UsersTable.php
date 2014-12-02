@@ -23,6 +23,9 @@ use Cake\ORM\Table;
 
 class UsersTable extends Table {
     public function initialize(array $config) {
-        $this->belongsToMany('Group');
+        $this->belongsToMany('Groups');
+        $this->hasOne('Admins', ['foreignKey' => 'id']);
+        $this->hasOne('Players', ['foreignKey' => 'id']);
+        $this->hasOne('Referees', ['foreignKey' => 'id']);
     }
 }

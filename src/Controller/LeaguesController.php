@@ -2,12 +2,11 @@
 
 namespace App\Controller;
 
-use App\Controller\TenThousandController;
 use Cake\ORM\TableRegistry;
 use Cake\Utility\Hash;
 use Cake\Network\Exception\NotFoundException;
 
-class LeaguesController extends TenThousandController {
+class LeaguesController extends AppController {
     public $helpers = array('Html');
     
     public function index() {
@@ -27,7 +26,7 @@ class LeaguesController extends TenThousandController {
         foreach ($leagues as $league)
             $leagueList[$league['id']] = $league['name'];
         
-        $this->set('nav', $this->makeNav(
+        $nav = new Navigation(
                 [
                     'controller' => 'pages',
                     'action' => 'home',
@@ -40,9 +39,8 @@ class LeaguesController extends TenThousandController {
                                     'buttons' => $leagueList
                                 ]
                         ]
-                ]
-            )
-        ); 
+                ]);
+        $this->set('nav', $nav->getNav()); 
     }
     
     public function view($id = null) {
@@ -54,7 +52,6 @@ class LeaguesController extends TenThousandController {
                 ->find()
                 ->contain([
                     'Sports',
-                    'Teams',
                     'Seasons'
                 ])
                 //->group('Admins.id')
@@ -63,6 +60,16 @@ class LeaguesController extends TenThousandController {
         if (!$query) { throw new NotFoundException(__('Invalid League')); }
         $league = $query->first();
         $this->set('league', $league);
+        
+        // Get info about Seasons
+        $seasonsTable = TableRegistry::get('Seasons');
+        $query = $seasonsTable
+                ->find()
+                ->where(['Seasons.league_id' => $id])
+                ->order(['Seasons.year' => 'DESC']);
+        if (!$query) { throw new NotFoundException(__('No Seasons')); }
+        $seasons = $query->toArray();
+        $this->set('seasons', $seasons);
         
         // Get info about league admins and their roles
         $admins_leagues_roles = TableRegistry::get('AdminsLeaguesRoles');
@@ -78,7 +85,7 @@ class LeaguesController extends TenThousandController {
         if (!$admins) { throw new NotFoundException(__('No Admins')); }
         
         // Begin seriously massaging the data
-        $admins = $this->recursiveObjectToArray($admins);
+        $admins = AppController::recursiveObjectToArray($admins);
         $admins_roles = Hash::combine($admins,
                 '{n}.role_id',
                 '{n}.role.title.name',
@@ -89,35 +96,32 @@ class LeaguesController extends TenThousandController {
                 ['%s %s', '{n}.admin.user.first_name', '{n}.admin.user.last_name'],
                 '{n}.role_id'
                 );
-        $admins = $this->spliceChildIntoParent($admins_roles, $roles_admins, 'name', 'roles');
+        $admins = AppController::spliceChildIntoParent($admins_roles, $roles_admins, 'name', 'roles');
         // end massage, ahh....
         
         $this->set('admins', $admins);
         
-        $seasons = $this->recursiveObjectToArray($league['seasons']);
+        $seasons = AppController::recursiveObjectToArray($seasons);
         $seasons = Hash::combine($seasons, '{n}.id', '{n}.year');
-        $teams = $this->recursiveObjectToArray($league['teams']);
-        $teams = Hash::combine($teams, '{n}.id', '{n}.name');
-        $this->set('nav', $this->makeNav(
-            [
-                'heading' => $league['name'],
-                'controller' => 'leagues',
-                'action' => 'view/' . $league['id'],
-                'buttons' =>
-                    [
-                        'Seasons' => 
-                            [
-                                'controller' => 'seasons',
-                                'action' => 'view',
-                                'buttons' => $seasons
-                            ],
-                        'Teams' =>
-                            [
-                                'controller' => 'teams',
-                                'action' => 'view',
-                                'buttons' => $teams
-                            ]
-                    ]
-            ])); 
+        //$teams = AppController::recursiveObjectToArray($league['teams']);
+        //$teams = Hash::combine($teams, '{n}.id', '{n}.name');
+        
+        $nav = new Navigation([
+                    'heading' => $league['name'],
+                    'controller' => 'leagues',
+                    'action' => 'view',
+                    'id' => $league['id'],
+                    'buttons' =>
+                        [
+                            'Seasons' => 
+                                [
+                                    'controller' => 'seasons',
+                                    'action' => 'view',
+                                    'buttons' => $seasons
+                                ]
+                        ]
+                ]);
+        
+        $this->set('nav', $nav->getNav());
     }
 }

@@ -26,15 +26,6 @@ use Cake\Controller\Controller;
  */
 class AppController extends Controller {
     
-    protected $nav =
-        [
-            'heading' => 'Ten Thousand Tournaments',
-            'controller' => 'pages',
-            'action' => 'home',
-            'current' => 'Home',
-            'buttons' => []
-        ];
-        
 /**
  * Initialization hook method.
  *
@@ -44,69 +35,156 @@ class AppController extends Controller {
  */
     public function initialize() {
         $this->loadComponent('Flash');
-        $this->set('nav', $this->makeNav());
+        $nav = new Navigation();
+        $this->set('nav', $nav->getNav());
     }
     
-    protected function makeNav(array $nav = []) {
-        if ($nav) {
-            foreach ($nav as $key => $value)
-                $this->nav[$key] = $value;
-        }
-        if (array_key_exists('buttons', $nav) && $nav['buttons']) {
-            foreach ($nav['buttons'] as $name => $properties) {
-                $this->nav['buttons'][$name] = $this->makeButton($name, $properties);
-            }
-        } elseif (!array_key_exists('buttons', $nav)) {
-            $this->nav['buttons'] = $this->defaultButtons();
-        }
-        return $this->nav;
-    }
-    
-    protected function replaceSpaces($input) {
+    static function replaceSpaces($input) {
         $output = strtolower($input);
         $output = str_replace(' ', '_', $output);
         return $output;
     }
     
+    static function recursiveObjectToArray($obj) {
+        if(is_object($obj))
+            $obj = AppController::objectToArray($obj);
+        if(is_array($obj)) {
+            $new = array();
+            foreach($obj as $key => $val)
+                $new[$key] = AppController::recursiveObjectToArray($val);
+        }
+        else
+            $new = $obj;
+        return $new;
+    }
+    
+    static function objectToArray(&$Instance) {
+        $clone = (array) $Instance;
+        $rtn = array ();
+        $rtn['___SOURCE_KEYS_'] = $clone;
+
+        while ( list ($key, $value) = each ($clone) ) {
+            $aux = explode ("\0", $key);
+            $newkey = $aux[count($aux)-1];
+            $rtn[$newkey] = &$rtn['___SOURCE_KEYS_'][$key];
+        }
+
+        return $rtn['_properties'];
+    }
+    
+    static function spliceChildIntoParent(array $parentHash, array $childHash, $parentIndex = 'parent', $childIndex = 'children') {
+        if (count($parentHash) < 1 || count($childHash) < 1) {
+            $error = "One of the supplied arrays is empty";
+            throw new TenThousandException($error);
+        }
+        
+        $splice = [];
+        foreach ($parentHash as $key => $value)
+            $splice[$key][$childIndex] = $value;
+        
+        foreach ($childHash as $parentValues) {
+            foreach ($parentValues as $parentKey => $parentValue) {
+                $splice[$parentKey][$parentIndex] = $parentValue;
+            }
+        }
+        
+        return $splice;
+    }
+}
+
+class Navigation {
+    
+    private $nav = [];
+    
+    public function __construct(array $nav = []) {
+        if ($nav)
+            $this->nav = $this->makeNav($nav);
+        else
+            $this->nav = $this->defaultNav();
+    }
+    
+    public function getNav() { return $this->nav; }
+    
+    private function makeNav(array $navInput) {
+        $navOutput = $this->defaultHeader();
+        
+        foreach ($navInput as $key => $value) {
+            if ($key == 'buttons') continue;
+            $navOutput[$key] = $value;
+        }
+        
+        if ($navInput['buttons']) {
+            $navOutput['buttons'] = $this->createButtons(array_keys($navInput['buttons']));
+            foreach ($navInput['buttons'] as $button => $properties) {
+                foreach ($properties as $key => $property)
+                    $navOutput['buttons'][$button][$key] = $property;
+            }
+        }
+        return $navOutput;
+    }
+    
+    private function defaultNav() {
+        $nav = $this->defaultHeader();
+        $nav['buttons'] = $this->defaultButtons();
+        return $nav;
+    }
+    
+    private function defaultHeader() {
+        $nav =
+            [
+                'heading' => 'Ten Thousand Tournaments',
+                'controller' => 'pages',
+                'action' => 'home',
+                'id' => '',
+                'current' => 'Home',
+                'buttons' => []
+            ];
+        return $nav;
+    }
+    
     private function defaultButtons() {
-        return
+        $buttons = 
             [
                 'About' =>
                     [
                         'controller' => 'pages',
                         'action' => 'about',
+                        'id' => '',
+                        '?' => [],
                         'buttons' => []
                     ],
                 'Contact' => 
                     [
                         'controller' => 'pages',
                         'action' => 'contact',
+                        'id' => '',
+                        '?' => [],
                         'buttons' => []
                     ]
             ];
+        return $buttons;
     }
     
     private function defaultButtonProperties($name) {
         if (!$name) throw new Exception('A name must be provided for this button.');
-        return
+        $button =
             [
-                'controller' => $this->replaceSpaces($name),
+                'controller' => AppController::replaceSpaces($name),
                 'action' => '',
+                'id' => '',
+                '?' => [],
                 'buttons' => []
             ];
+        return $button;
     }
     
-    private function makeButton($name, array $properties = []) {
-        if (!$name) throw new Exception('A name must be provided for this button.');
-        $buttonProperties = [];
-        
-        if  (array_key_exists('controller', $properties) && $properties['controller'] &&
-                array_key_exists('action', $properties) && $properties['action'] &&
-                array_key_exists('buttons', $properties))
-                $buttonProperties = $properties;
-        else
-            $buttonProperties = $this->defaultButtonProperties($name);
-        
-        return $buttonProperties;
+    private function createButtons(array $buttonNames) {
+        $buttons = [];
+        foreach ($buttonNames as $value) {
+            $buttons[$value] = $this->defaultButtonProperties($value);
+        }
+        return $buttons;
     }
+    
+    
 }

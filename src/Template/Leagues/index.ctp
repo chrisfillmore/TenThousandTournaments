@@ -1,7 +1,7 @@
 <?php $this->layout = 'default'; ?>
 
 <h1>Leagues</h1>
-<table>
+<table class="table table-striped">
     <tr>
         <th>Sport</th>
         <th>League Name</th>

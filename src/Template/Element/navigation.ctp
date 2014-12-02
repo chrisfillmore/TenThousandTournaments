@@ -14,7 +14,8 @@
                     $nav['heading'],
                     [
                         'controller' => $nav['controller'],
-                        'action' => $nav['action']
+                        'action' => $nav['action'],
+                        $nav['id']
                     ],
                     ['class' => 'navbar-brand']
                 );
@@ -28,7 +29,7 @@
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" 
                role="button" aria-expanded="false">
-                        <?= $name; ?><span class="caret"></span>
+                        <?= $name; ?>&nbsp;<span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu" role="menu"><?php
                         foreach ($menu['buttons'] as $id => $link) : ?>
@@ -37,7 +38,8 @@
                                     [
                                         'controller' => $menu['controller'],
                                         'action' => $menu['action'],
-                                        $id
+                                        $id,
+                                        '?' => $menu['?']
                                     ]
                                 ); ?>
                             </li><?php
@@ -54,7 +56,9 @@
                         $name,
                         [
                             'controller' => $menu['controller'],
-                            'action' => $menu['action']
+                            'action' => $menu['action'],
+                            $menu['id'],
+                            '?' => $menu['?']
                         ]
                     ); ?>
                     </li><?php

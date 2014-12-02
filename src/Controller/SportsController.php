@@ -2,24 +2,16 @@
 
 namespace App\Controller;
 
-use App\Controller\TenThousandController;
 use Cake\ORM\TableRegistry;
 use Cake\Utility\Hash;
 
-class SportsController extends TenThousandController {
+class SportsController extends AppController {
     public $helpers = array('Html');
-    
-    public $sports = [];
+
     
     public function initialize() {
         parent::initialize();
         $sportsTable = TableRegistry::get('Sports');
-        $query = $sportsTable
-                ->find()
-                ->combine('id', 'name');
-        // Get the sports for use elsewhere
-        $this->sports = $query->toArray();
-        $this->set('navButtons', ['Sports' => $query->toArray()]);
     }
     
     public function index() {
@@ -49,14 +41,9 @@ class SportsController extends TenThousandController {
         $sport = $query->toArray();
         $this->set('sport', $sport);
         
-        $leagues = $this->recursiveObjectToArray($sport);
+        $leagues = AppController::recursiveObjectToArray($sport);
         $leagues = Hash::combine($leagues, '{n}.league.id', '{n}.league.name');
         $this->set('leagues', $leagues);
         
-        $this->set('navButtons',
-            [
-                'Sports' => $this->sports,
-                'Leagues' => $leagues
-            ]);
     }
 }

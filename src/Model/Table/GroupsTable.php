@@ -23,7 +23,7 @@ use Cake\ORM\Table;
 
 class GroupsTable extends Table {
     public function initialize(array $config) {
-        $this->hasOne('Title');
-        $this->belongsToMany('User');
+        $this->belongsTo('Titles');
+        $this->belongsToMany('Users');
     }
 }

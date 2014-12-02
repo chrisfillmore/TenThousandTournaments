@@ -8,6 +8,8 @@ class GamesTable extends TenThousandTable {
     public function initialize(array $config) {
         $associations = ['Seasons', 'GameStates', 'Locations'];
         $this->multiBelongsTo($associations);
+        $this->hasMany('Leagues');
+        //$this->belongsTo('Teams');
         $this->belongsTo(
                     'HomeTeams',
                     [
@@ -15,7 +17,7 @@ class GamesTable extends TenThousandTable {
                         'foreignKey' => 'home_team_id'
                     ]
                 );
-        $this->hasMany(
+        $this->belongsTo(
                     'AwayTeams',
                     [
                         'className' => 'Teams',

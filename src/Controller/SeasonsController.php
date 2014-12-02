@@ -1,24 +1,15 @@
 <?php
 namespace App\Controller;
 
-use App\Controller\TenThousandController;
 use Cake\ORM\TableRegistry;
 use Cake\Utility\Hash;
 
-class SeasonsController extends TenThousandController {
+class SeasonsController extends AppController {
 
     public $helpers = array('Html');
     
     public function index() {
-        $seasonsTable = TableRegistry::get('Seasons');
-        $query = $seasonsTable
-                ->find()
-                ->contain([
-                    'Games',
-                    'Teams',
-                    'Leagues'
-                ]);
-        $this->set('seasons', $query->toArray());
+        $this->redirect('/leagues');
     }
     
     public function view($id = null) {
@@ -28,7 +19,6 @@ class SeasonsController extends TenThousandController {
         $query = $seasonsTable
                 ->find()
                 ->contain([
-                    'Games',
                     'Teams',
                     'Leagues'
                 ])
@@ -36,22 +26,29 @@ class SeasonsController extends TenThousandController {
         $season = $query->first();
         $this->set('season', $season);
         
-        $teams = $this->recursiveObjectToArray($season['teams']);
+        $gamesTable = TableRegistry::get('Games');
+        $query = $gamesTable
+                ->find()
+                ->contain([
+                    'HomeTeams',
+                    'AwayTeams'
+                ])
+                ->where(['Games.season_id' => $id])
+                ->order(['Games.date_time' => 'ASC']);
+        $games = $query->toArray();
+        $this->set('games', $games);
+        
+        $teams = AppController::recursiveObjectToArray($season['teams']);
         $teams = Hash::combine($teams, '{n}.id', '{n}.name');
         
-        $this->set('nav', $this->makeNav(
+        $nav = new Navigation(
                 [
                     'heading' => $season['league']['name'],
                     'controller' => 'leagues',
-                    'action' => 'view/' . $season['league']['id'],
+                    'action' => 'view',
+                    'id' => $season['league']['id'],
                     'buttons' =>
                     [
-                        'Schedule' =>
-                        [
-                            'controller' => 'seasons',
-                            'action' => 'schedule/' . $season['id'],
-                            'buttons' => []
-                        ],
                         'Teams' =>
                         [
                             'controller' => 'teams',
@@ -59,7 +56,8 @@ class SeasonsController extends TenThousandController {
                             'buttons' => $teams
                         ]
                     ]
-                ]));
+                ]);
+        $this->set('nav', $nav->getNav());
     }
     
     public function schedule($id = null) {
@@ -73,35 +71,38 @@ class SeasonsController extends TenThousandController {
                     'Leagues',
                     'Games'
                 ])
-                ->where(['Seasons.id' => $id]);
+                ->where(['Seasons.id' => $id])
+                ->order(['Seasons.year' => 'DESC']);
         if (!$query) { throw new NotFoundException(__('No Season')); }
         
         $season = $query->first();
         $this->set('season', $season);
         
-        $teams = $this->recursiveObjectToArray($season['teams']);
+        $teams = AppController::recursiveObjectToArray($season['teams']);
         $teams = Hash::combine($teams, '{n}.id', '{n}.name');
         
-        $this->set('nav', $this->makeNav(
-                [
+        $nav = new Navigation([
                     'heading' => $season['league']['name'],
                     'controller' => 'leagues',
-                    'action' => 'view/' . $season['league']['id'],
+                    'action' => 'view',
+                    'id' => $season['league']['id'],
                     'buttons' =>
                     [
                         $season['year'] . ' Season' =>
                         [
                             'controller' => 'seasons',
-                            'action' => 'view/' . $season['id'],
-                            'buttons' => []
+                            'action' => 'view',
+                            'id' => $season['id']
                         ],
-                        'Teams' =>
+                        'Team Schedules' =>
                         [
                             'controller' => 'teams',
                             'action' => 'schedule',
+                            '?' => ['season' => $season['id']],
                             'buttons' => $teams
                         ]
                     ]
-                ]));
+                ]);
+        $this->set('nav', $nav->getNav());
     }
 }

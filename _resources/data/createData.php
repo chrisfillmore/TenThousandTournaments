@@ -57,7 +57,7 @@ function createTransactions(array $data, $parentTable, $columns, $childTable) {
     return $transactions;
 }
 
-/* Seasons */
+/* Seasons 
 $data = [];
 
 for ($l = 1; $l <= NUM_LEAGUES; $l++) {
@@ -79,9 +79,9 @@ unset($data);
 unset($table);
 unset($columns);
 unset($inserts);
-unset($value);
+unset($value);*/
 
-/* Teams */
+/* Teams 
 $sports =
         [
             'hockey' => 1,
@@ -131,9 +131,9 @@ unset($table);
 unset($columns);
 unset($inserts);
 unset($value);
-unset($file);
+unset($file);*/
 
-/* Players */
+/* Players 
 
 $user_name_file = 'user_names.txt';
 
@@ -160,9 +160,9 @@ unset($columns);
 unset($inserts);
 unset($value);
 unset($file);
-unset($childTable);
+unset($childTable); */
 
-/* Seasons_Teams */
+/* Seasons_Teams 
 
 $data = [];
 
@@ -238,9 +238,9 @@ unset($data);
 unset($table);
 unset($columns);
 unset($inserts);
-unset($value);
+unset($value);*/
 
-/* Players_Teams */
+/* Players_Teams 
 
 $players_per_team = NUM_PLAYERS / NUM_TEAMS;
 define('PLAYERS_PER_TEAM', $players_per_team);
@@ -267,9 +267,9 @@ unset($data);
 unset($table);
 unset($columns);
 unset($inserts);
-unset($value);
+unset($value);*/
 
-/* Locations */
+/* Locations 
 $suffixes = ['Centre', 'Complex', 'Plaza', 'Sportsplex', 'Field', 'Arena'];
 
 define('LOCATIONS_FILE', 'location_names.txt');
@@ -293,9 +293,9 @@ unset($data);
 unset($table);
 unset($columns);
 unset($inserts);
-unset($value);
+unset($value);*/
 
-/* Games */
+/* Games 
 
 $game =
         [
@@ -361,6 +361,27 @@ for ($s = 1; $s <= NUM_SEASONS; $s++) {
 
 $table = 'games';
 $columns = array_keys($game);
+
+$inserts = createInserts($data, $table, $columns);
+
+foreach ($inserts as $value)
+    echo $value . '<br>';
+
+unset($data);
+unset($table);
+unset($columns);
+unset($inserts);
+unset($value); */
+
+/* GROUPS_USERS */
+
+$data = [];
+
+for ($p = 1; $p <= NUM_PLAYERS; $p++)
+    $data[] = [$p, 2];
+
+$table = 'groups_users';
+$columns = ['user_id', 'group_id'];
 
 $inserts = createInserts($data, $table, $columns);
 

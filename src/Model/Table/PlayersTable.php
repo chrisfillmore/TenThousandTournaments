@@ -21,14 +21,9 @@ namespace App\Model\Table;
 
 use App\Model\Table\TenThousandTable;
 
-class Players extends TenThousandTable {
+class PlayersTable extends TenThousandTable {
     public function initialize(array $config) {
-        $this->belongsTo('Teams');
-        $associations = ['Positions', 'Users'];
-        $this->multiHasOne($associations);
-        
-        $associations = ['Divisions', 'Seasons', 'Teams'];
-        $joinTable = 'divisions_players_seasons_teams';
-        $this->multiBelongsToMany($associations, $joinTable);
+        $this->belongsToMany('Teams');
+        $this->hasOne('Users', ['foreignKey' => 'id']);
     }
 }

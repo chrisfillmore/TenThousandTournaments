@@ -9,20 +9,67 @@ class UsersController extends AppController {
     public $helpers = array('Html');
 
     public function index() {
-        $this->set('users', $this->User->find('all'));
+        $this->redirect('/leagues');
     }
 
     public function view($id = null) {
         if (!$id) { throw new NotFoundException(__('Invalid User')); }
         
-        $params = array(
-            'conditions' => array(
-                'User.id' => $id
-            ),
-            'recursive' => 2
-        );
-        $user = $this->User->find('first', $params);
-        if (!$user) { throw new NotFoundException(__('Invalid User')); }
+        $usersTable = TableRegistry::get('Users');
+        $query = $usersTable
+                ->find()
+                ->contain([
+                    'Groups.Titles'
+                ])
+                ->where(['Users.id' => $id]);
+        if (!$query) { throw new NotFoundException(__('No User')); }
+        
+        $user = $query->first();
+        
+        $query = $usersTable
+                ->find()
+                ->contain($this->getUserAssociations($user['groups']))
+                ->where(['Users.id' => $id]);
+        
+        $user = $query->first();
         $this->set('user', $user);
+
+        $nav = new Navigation([
+                    'heading' => 'Ten Thousand Tournaments',
+                    'controller' => 'pages',
+                    'action' => 'home',
+                    'buttons' =>
+                    [
+                        'Leagues' =>
+                        [
+                            'controller' => 'leagues',
+                            'action' => 'index'
+                        ],
+                        'Teams' =>
+                        [
+                            'controller' => 'teams',
+                            'action' => 'index'
+                        ],
+                        'Users' =>
+                        [
+                            'controller' => 'users',
+                            'action' => 'index'
+                        ]
+                    ]
+                ]);
+        $this->set('nav', $nav->getNav());
+    }
+    
+    protected function getUserAssociations(array $groups) {
+        $models = [
+            1 => 'Admins.Leagues',
+            2 => 'Players.Teams',
+            3 => 'Referees'
+        ];
+        $contain = ['Groups.Titles'];
+        foreach ($groups as $group) {
+            $contain[] = $models[$group['id']];
+        }
+        return $contain;
     }
 }
