@@ -60,6 +60,18 @@ class UsersController extends AppController {
         $this->set('nav', $nav->getNav());
     }
     
+    public function add() {
+        $user = $this->Users->newEntity($this->request->data);
+        if ($this->request->is('post')) {
+            if ($this->Users->save($user)) {
+                $this->Flash->success(__('New user created. Thank you for registering.'));
+                return $this->redirect(['action' => 'index']);
+            }
+            $this->Flash->error(__('Unable to add user'));
+        }
+        $this->set('user', $user);
+    }
+    
     protected function getUserAssociations(array $groups) {
         $models = [
             1 => 'Admins.Leagues',

@@ -125,7 +125,7 @@ class Navigation {
     
     private function defaultNav() {
         $nav = $this->defaultHeader();
-        $nav['buttons'] = $this->defaultButtons();
+        //$nav['buttons'] = $this->defaultButtons();
         return $nav;
     }
     

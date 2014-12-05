@@ -1,6 +1,7 @@
 body {
   padding-top: 70px;
   padding-bottom: 30px;
+  color: #286090;
 }
 
 .theme-dropdown .dropdown-menu {
@@ -15,4 +16,26 @@ body {
 
 .theme-showcase .navbar .container {
   width: auto;
+}
+
+.jumbotron {
+    background-color: #EAF7FA;
+}
+
+.navbar-default {
+    color: #2AABD2;
+}
+
+@media (min-width: 768px) {
+    .navbar-default input[type='text'].form-control,
+    .navbar-default input[type='password'].form-control {
+        width: 150px;
+    }
+}
+
+@media (min-width: 992px) {
+    .navbar-default input[type='text'].form-control,
+    .navbar-default input[type='password'].form-control {
+        width: auto;
+    }
 }

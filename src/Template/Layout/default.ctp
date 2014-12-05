@@ -50,7 +50,13 @@ $title = 'Ten Thousand Tournaments';
     <div class="container" role="main">
         <?= $this->Flash->render() ?>
         <?= $this->fetch('content') ?>
+        <hr>
+        <footer>
+            <p>&copy; Ten Thousand Tournaments 2014</p>
+        </footer>
     </div>
+    
+    
 
     <!-- jQuery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
