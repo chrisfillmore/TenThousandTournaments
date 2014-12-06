@@ -105,14 +105,17 @@ class TeamsController extends AppController {
         
         if (!$teamId) { throw new NotFoundException(__('Invalid Team')); }
         
-        $seasonId = $this->request->query['season'];
+        if (array_key_exists('season', $this->request->query))
+            $seasonId = $this->request->query['season'];
         
+        // Games
         $gamesTable = TableRegistry::get('Games');
         $query = $gamesTable
                 ->find()
                 ->contain([
                     'HomeTeams',
-                    'AwayTeams'
+                    'AwayTeams',
+                    'Locations'
                 ])
                 ->where([
                     'Games.season_id' => $seasonId,
@@ -124,8 +127,10 @@ class TeamsController extends AppController {
                 ->order(['Games.date_time' => 'ASC']);
         if (!$query) { throw new NotFoundException(__('No Team')); }
         
-        $this->set('games', $query->toArray());      
+        $games = $query->toArray();
+        $this->set('games', $games);      
         
+        // Seasons
         $seasonsTable = TableRegistry::get('Seasons');
         $query = $seasonsTable
                 ->find()
@@ -139,32 +144,40 @@ class TeamsController extends AppController {
         $query = $teamsTable
                 ->find()
                 ->where(['Teams.id' => $teamId]);
+
         if (!$query) { throw new NotFoundException(__('No Team')); }
         $team = $query->first();
         $this->set('team', $team);
         
-        $nav = new Navigation(
-                [
-                    'heading' => $season['league']['name'],
-                    'controller' => 'leagues',
-                    'action' => 'view',
-                    'id' => $season['league']['id'],
-                    'buttons' =>
-                    [
-                        $season['year'] . ' Season' =>
-                        [
-                            'controller' => 'seasons',
-                            'action' => 'view',
-                            'id' => $season['id'],
-                        ],
-                        $team['name'] =>
-                        [
-                            'controller' => 'teams',
-                            'action' => 'view',
-                            'id' => $teamId
-                        ]
+        // Teams
+        $teamsList = [];
+        foreach ($games as $game) {
+            $teamsList[$game['home_team_id']] = $game['home_team']['name'];
+            $teamsList[$game['away_team_id']] = $game['away_team']['name'];
+        }
+        
+        $nav = new Navigation([
+            'subNav' => [
+                'heading' => $season['league']['name'],
+                'controller' => 'leagues',
+                'action' => 'view',
+                'id' => $season['league']['id'],
+                'buttons' => [
+                    'Full League Schedule' => [
+                        'controller' => 'seasons',
+                        'action' => 'view',
+                        'id' => $season['id'],
+                    ],
+                    'Select Team' => [
+                        'controller' => 'teams',
+                        'action' => 'schedule',
+                        'id' => $teamId,
+                        '?' => ['season' => $season['id']],
+                        'buttons' => $teamsList
                     ]
-                ]);
+                ]
+            ]
+        ]);
         
         $this->set('nav', $nav->getNav());
     }

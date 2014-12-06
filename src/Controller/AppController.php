@@ -15,6 +15,7 @@
 namespace App\Controller;
 
 use Cake\Controller\Controller;
+use App\Exception\TenThousandException;
 
 /**
  * Application Controller
@@ -25,6 +26,8 @@ use Cake\Controller\Controller;
  * @link http://book.cakephp.org/3.0/en/controllers.html#the-app-controller
  */
 class AppController extends Controller {
+    
+    protected $subNav = true;
     
 /**
  * Initialization hook method.
@@ -37,6 +40,7 @@ class AppController extends Controller {
         $this->loadComponent('Flash');
         $nav = new Navigation();
         $this->set('nav', $nav->getNav());
+        $this->set('subNav', $this->subNav);
     }
     
     static function replaceSpaces($input) {
@@ -68,7 +72,7 @@ class AppController extends Controller {
             $newkey = $aux[count($aux)-1];
             $rtn[$newkey] = &$rtn['___SOURCE_KEYS_'][$key];
         }
-
+        
         return $rtn['_properties'];
     }
     
@@ -106,68 +110,66 @@ class Navigation {
     public function getNav() { return $this->nav; }
     
     private function makeNav(array $navInput) {
-        $navOutput = $this->defaultHeader();
+        $navOutput = $this->defaultNav();
         
-        foreach ($navInput as $key => $value) {
-            if ($key == 'buttons') continue;
-            $navOutput[$key] = $value;
-        }
-        
-        if ($navInput['buttons']) {
-            $navOutput['buttons'] = $this->createButtons(array_keys($navInput['buttons']));
-            foreach ($navInput['buttons'] as $button => $properties) {
-                foreach ($properties as $key => $property)
-                    $navOutput['buttons'][$button][$key] = $property;
+        foreach ($navInput as $navKey => $navValue) {
+            if ($navKey == 'subNav') {
+                foreach ($navInput['subNav'] as $subNavKey => $subNavValue) {
+                    if ($subNavKey == 'buttons') {
+                        $navOutput['subNav']['buttons'] =
+                                $this->createButtons(
+                                        array_keys($subNavValue),
+                                        $subNavValue
+                                        );
+                        continue;
+                    };
+                    $navOutput['subNav'][$subNavKey] = $subNavValue;
+                }
+                continue;
             }
+            $navOutput[$navKey] = $navValue;
         }
+        
+        unset($navOutput['subNav']['subNav']);
         return $navOutput;
     }
     
-    private function defaultNav() {
-        $nav = $this->defaultHeader();
-        //$nav['buttons'] = $this->defaultButtons();
-        return $nav;
-    }
-    
-    private function defaultHeader() {
+    private function defaultNav($subHeader = false) {
         $nav =
             [
                 'heading' => 'Ten Thousand Tournaments',
                 'controller' => 'pages',
                 'action' => 'home',
                 'id' => '',
-                'current' => 'Home',
-                'buttons' => []
+                'subNav' => [
+                    'heading' => '',
+                    'controller' => '',
+                    'action' => '',
+                    'id' => '',
+                    'buttons' => []
+                ]
             ];
         return $nav;
     }
     
-    private function defaultButtons() {
-        $buttons = 
-            [
-                'About' =>
-                    [
-                        'controller' => 'pages',
-                        'action' => 'about',
-                        'id' => '',
-                        '?' => [],
-                        'buttons' => []
-                    ],
-                'Contact' => 
-                    [
-                        'controller' => 'pages',
-                        'action' => 'contact',
-                        'id' => '',
-                        '?' => [],
-                        'buttons' => []
-                    ]
-            ];
+    private function createButtons(array $buttonNames, array $buttonData) {
+        $buttons = $this->defaultButtonProperties($buttonNames);
+
+        foreach ($buttonData as $button => $properties) {
+            foreach ($properties as $key => $property)
+                $buttons[$button][$key] = $property;
+        }
+        
         return $buttons;
     }
     
-    private function defaultButtonProperties($name) {
-        if (!$name) throw new Exception('A name must be provided for this button.');
-        $button =
+    private function defaultButtonProperties(array $names) {
+        if (!$names) throw new Exception('Names must be provided to make buttons.');
+        
+        $buttons = [];
+        
+        foreach ($names as $name) {
+            $buttons[$name] =
             [
                 'controller' => AppController::replaceSpaces($name),
                 'action' => '',
@@ -175,16 +177,8 @@ class Navigation {
                 '?' => [],
                 'buttons' => []
             ];
-        return $button;
-    }
-    
-    private function createButtons(array $buttonNames) {
-        $buttons = [];
-        foreach ($buttonNames as $value) {
-            $buttons[$value] = $this->defaultButtonProperties($value);
         }
+        
         return $buttons;
     }
-    
-    
 }

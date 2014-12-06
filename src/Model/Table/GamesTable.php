@@ -6,10 +6,9 @@ use App\Model\Table\TenThousandTable;
 
 class GamesTable extends TenThousandTable {
     public function initialize(array $config) {
-        $associations = ['Seasons', 'GameStates', 'Locations'];
-        $this->multiBelongsTo($associations);
         $this->hasMany('Leagues');
-        //$this->belongsTo('Teams');
+        $this->belongsTo('Seasons');
+        $this->belongsTo('Locations');
         $this->belongsTo(
                     'HomeTeams',
                     [

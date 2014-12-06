@@ -46,9 +46,10 @@ $title = 'Ten Thousand Tournaments';
     ?>
 </head>
 <body role="document">
-    <?= $this->element('navigation'); ?>
+    <?= $this->element('topnav'); ?>
     <div class="container" role="main">
         <?= $this->Flash->render() ?>
+        <?php if ($subNav) echo $this->element('subnav'); ?>
         <?= $this->fetch('content') ?>
         <hr>
         <footer>
@@ -64,5 +65,3 @@ $title = 'Ten Thousand Tournaments';
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
 </body>
 </html>
-
-<?php

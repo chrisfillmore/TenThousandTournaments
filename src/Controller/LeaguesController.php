@@ -21,25 +21,24 @@ class LeaguesController extends AppController {
         $leagues = $query->toArray();
         $this->set('leagues', $leagues);
         
-        $leagueList = [];
+        $sportList = [];
         
         foreach ($leagues as $league)
-            $leagueList[$league['id']] = $league['name'];
+            $sportList[$league['sport']['id']] = $league['sport']['name'];
         
-        $nav = new Navigation(
-                [
-                    'controller' => 'pages',
-                    'action' => 'home',
-                    'buttons' =>
-                        [
-                            'Leagues' =>
-                                [
-                                    'controller' => 'leagues',
-                                    'action' => 'view',
-                                    'buttons' => $leagueList
-                                ]
+        $nav = new Navigation([
+                        'subNav' => [
+                            'heading' => 'Leagues',
+                            'controller' => 'leagues',
+                            'buttons' => [
+                                'Sports' => [
+                                        'controller' => 'sports',
+                                        'action' => 'view',
+                                        'buttons' => $sportList
+                                ] 
+                            ]
                         ]
-                ]);
+                    ]);
         $this->set('nav', $nav->getNav()); 
     }
     
@@ -51,8 +50,7 @@ class LeaguesController extends AppController {
         $query = $leaguesTable
                 ->find()
                 ->contain([
-                    'Sports',
-                    'Seasons'
+                    'Sports'
                 ])
                 //->group('Admins.id')
                 ->where(['Leagues.id' => $id]);
@@ -61,15 +59,31 @@ class LeaguesController extends AppController {
         $league = $query->first();
         $this->set('league', $league);
         
-        // Get info about Seasons
+        // Get info about the current season
         $seasonsTable = TableRegistry::get('Seasons');
         $query = $seasonsTable
                 ->find()
+                ->contain([
+                    'Teams'
+                ])
                 ->where(['Seasons.league_id' => $id])
                 ->order(['Seasons.year' => 'DESC']);
         if (!$query) { throw new NotFoundException(__('No Seasons')); }
-        $seasons = $query->toArray();
-        $this->set('seasons', $seasons);
+        $season = $query->first();
+        $this->set('season', $season);
+        
+        $gamesTable = TableRegistry::get('Games');
+        $query = $gamesTable
+                ->find()
+                ->contain([
+                    'Locations',
+                    'HomeTeams',
+                    'AwayTeams'
+                ])
+                ->where(['Games.season_id' => $season['id']])
+                ->order(['Games.date_time' => 'ASC']);
+        $games = $query->toArray();
+        $this->set('games', $games);
         
         // Get info about league admins and their roles
         $admins_leagues_roles = TableRegistry::get('AdminsLeaguesRoles');
@@ -101,25 +115,26 @@ class LeaguesController extends AppController {
         
         $this->set('admins', $admins);
         
-        $seasons = AppController::recursiveObjectToArray($seasons);
-        $seasons = Hash::combine($seasons, '{n}.id', '{n}.year');
-        //$teams = AppController::recursiveObjectToArray($league['teams']);
-        //$teams = Hash::combine($teams, '{n}.id', '{n}.name');
+        $teamsList = [];
+        foreach ($season['teams'] as $team) {
+            $teamsList[$team['id']] = $team['name'];
+        }
         
         $nav = new Navigation([
-                    'heading' => $league['name'],
-                    'controller' => 'leagues',
-                    'action' => 'view',
-                    'id' => $league['id'],
-                    'buttons' =>
-                        [
-                            'Seasons' => 
-                                [
-                                    'controller' => 'seasons',
-                                    'action' => 'view',
-                                    'buttons' => $seasons
-                                ]
+                    'subNav' => [
+                        'heading' => $league['name'],
+                        'controller' => 'leagues',
+                        'action' => 'view',
+                        'id' => $league['id'],
+                        'buttons' => [
+                            'Team Schedules' => [
+                                'controller' => 'teams',
+                                'action' => 'schedule',
+                                'buttons' => $teamsList,
+                                '?' => ['season' => $season['id']]
+                            ]
                         ]
+                    ]
                 ]);
         
         $this->set('nav', $nav->getNav());

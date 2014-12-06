@@ -1,6 +1,5 @@
 <?php $this->layout = 'default'; ?>
 
-<h1>Leagues</h1>
 <table class="table table-striped">
     <tr>
         <th>Sport</th>
