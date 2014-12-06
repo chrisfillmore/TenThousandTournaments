@@ -1,4 +1,8 @@
 <?php
+
+// modify this
+define('BASE_URL', 'localhost');
+
 $config = [
 /**
  * Debug Level:

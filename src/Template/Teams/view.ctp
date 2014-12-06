@@ -1,21 +1,27 @@
 <?php $this->layout = 'default'; ?>
 
-<h1><?= $team['name']; ?></h1>
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <h3 class="panel-title"><?= $team['name']; ?></h3>
+    </div>
+    <div class="panel-body">
+        <table class="table table-striped">
+            <tr>
+                <th>Player Name</th>
+            </tr>
+            <?php foreach ($team['players'] as $player) : ?>
+            <tr>
+                <td><?php echo $this->Html->link(
+                        $player['user']['first_name'] . ' ' . $player['user']['last_name'],
+                        [
+                            'controller' => 'users',
+                            'action' => 'view',
+                            $player['id']
+                        ]
+                        ); ?></td>
+            </tr>
+            <?php endforeach; ?>
+        </table>
+    </div>
+</div>
 
-<table class="table table-striped">
-    <tr>
-        <th>Player Name</th>
-    </tr>
-    <?php foreach ($team['players'] as $player) : ?>
-    <tr>
-        <td><?php echo $this->Html->link(
-                $player['user']['first_name'] . ' ' . $player['user']['last_name'],
-                [
-                    'controller' => 'users',
-                    'action' => 'view',
-                    $player['id']
-                ]
-                ); ?></td>
-    </tr>
-    <?php endforeach; ?>
-</table>

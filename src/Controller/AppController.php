@@ -16,6 +16,7 @@ namespace App\Controller;
 
 use Cake\Controller\Controller;
 use App\Exception\TenThousandException;
+use Cake\Event\Event;
 
 /**
  * Application Controller
@@ -41,6 +42,23 @@ class AppController extends Controller {
         $nav = new Navigation();
         $this->set('nav', $nav->getNav());
         $this->set('subNav', $this->subNav);
+        
+        $this->loadComponent('Auth', [
+            'loginRedirect' => [
+                'controller' => 'Leagues'
+            ],
+            'logoutRedirect' => [
+                'controller' => 'Pages',
+                'action' => 'display',
+                'home'
+            ]
+        ]);
+        $loggedIn = $this->Auth->user('id');
+        $this->set('loggedIn', $loggedIn);
+    }
+    
+    public function beforeFilter(Event $event) {
+        $this->Auth->allow(['index', 'view']);
     }
     
     static function replaceSpaces($input) {

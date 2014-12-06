@@ -4,14 +4,39 @@ namespace App\Controller;
 
 use App\Controller\AppController;
 use Cake\ORM\TableRegistry;
+use Cake\Event\Event;
 
 class UsersController extends AppController {
     public $helpers = array('Html');
 
+    public function beforeFilter(Event $event) {
+        parent::beforeFilter($event);
+        $this->Auth->allow(['add', 'logout']);
+    }
+    
+    public function login() {
+        $this->subNav = false;
+        $this->set('subNav', $this->subNav);
+        $this->set('user', null);
+        
+        if ($this->request->is('post')) {
+            $user = $this->Auth->identify();
+            if ($user) {
+                $this->Auth->setUser($user);
+                return $this->redirect($this->Auth->redirectUrl());
+            }
+            $this->Flash->error(__('Invalid username or password, try again'));
+        }
+    }
+    
+    public function logout() {
+        return $this->redirect($this->Auth->logout());
+    }
+    
     public function index() {
         $this->redirect('/leagues');
     }
-
+    
     public function view($id = null) {
         if (!$id) { throw new NotFoundException(__('Invalid User')); }
         
@@ -35,32 +60,24 @@ class UsersController extends AppController {
         $this->set('user', $user);
 
         $nav = new Navigation([
-                    'heading' => 'Ten Thousand Tournaments',
-                    'controller' => 'pages',
-                    'action' => 'home',
-                    'buttons' =>
-                    [
-                        'Leagues' =>
-                        [
-                            'controller' => 'leagues',
-                            'action' => 'index'
-                        ],
-                        'Teams' =>
-                        [
-                            'controller' => 'teams',
-                            'action' => 'index'
-                        ],
-                        'Users' =>
-                        [
-                            'controller' => 'users',
-                            'action' => 'index'
-                        ]
+            'subNav' => [
+                'heading' => '',
+                'controller' => 'pages',
+                'action' => 'home',
+                'buttons' => [
+                    'Leagues' => [
+                        'controller' => 'leagues'
                     ]
-                ]);
+                ]
+            ]
+        ]);
         $this->set('nav', $nav->getNav());
     }
     
     public function add() {
+        $this->subNav = false;
+        $this->set('subNav', $this->subNav);
+        
         $user = $this->Users->newEntity($this->request->data);
         if ($this->request->is('post')) {
             if ($this->Users->save($user)) {

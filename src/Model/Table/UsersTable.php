@@ -20,6 +20,7 @@
 namespace App\Model\Table;
 
 use Cake\ORM\Table;
+use Cake\Validation\Validator;
 
 class UsersTable extends Table {
     public function initialize(array $config) {
@@ -27,5 +28,13 @@ class UsersTable extends Table {
         $this->hasOne('Admins', ['foreignKey' => 'id']);
         $this->hasOne('Players', ['foreignKey' => 'id']);
         $this->hasOne('Referees', ['foreignKey' => 'id']);
+    }
+    
+    public function validationDefault(Validator $validator) {
+        return $validator
+                ->notEmpty('username', 'A username is required')
+                ->notEmpty('password', 'A password is required')
+                ->notEmpty('first_name', 'Your first name is required')
+                ->notEmpty('last_name', 'Your last name is required');
     }
 }

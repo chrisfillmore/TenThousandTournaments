@@ -33,20 +33,24 @@ class TeamsController extends AppController {
     public function view($id = null) {
         if (!$id) { throw new NotFoundException(__('Invalid Team')); }
         
+        // Roster info
         $teamsTable = TableRegistry::get('Teams');
         $query = $teamsTable
                 ->find()
                 ->contain([
                     'Players.Users',
-                    'Leagues'
+                    'Leagues',
+                    'Seasons'
                     ])
                 ->where(['Teams.id' => $id]);
-        
         if (!$query) { throw new NotFoundException(__('No Team')); }
-        
         $team = $query->first();
-        $this->set('team', $team);
+        $this->set('team', $team);        
         
+        // Current season
+        $season = Hash::sort($team['seasons'], '{n}.year', 'desc')[0];
+        
+        // Next game
         $gamesTable = TableRegistry::get('Games');
         $query = $gamesTable
                 ->find()
@@ -62,42 +66,41 @@ class TeamsController extends AppController {
                     ]
                 ])
                 ->order(['Games.date_time' => 'DESC']);
+        $nextGame = $query->first();
         
-        if (!$query)
-            $nextGame = false;
-        else
-            $nextGame = $query->first();
+        $this->set('games', [$nextGame]);
         
-        $this->set('nextGame', $nextGame);
-        
+        // Players
         $players = AppController::recursiveObjectToArray($team['players']);
         $players = Hash::combine($players,
                 '{n}.id',
                 ['%s %s', '{n}.user.first_name', '{n}.user.last_name']);
         
+        // Teams in the current season
+        $teamsList = TeamsController::teamsThisSeason($season['id']);
+        
         $nav = new Navigation([
-                    'heading' => $team['league']['name'],
-                    'controller' => 'leagues',
-                    'action' => 'view',
-                    'id' => $team['league']['id'],
-                    'buttons' =>
-                        [
-                            
-                            'Team Schedule' => 
-                                [
-                                    'controller' => 'teams',
-                                    'action' => 'schedule',
-                                    'id' => $id,
-                                    '?' => ['season' => $nextGame['season_id']]
-                                ],
-                            'Players' =>
-                                [
-                                    'controller' => 'users',
-                                    'action' => 'view',
-                                    'buttons' => $players
-                                ]
-                        ]
-                ]);
+            'subNav' => [
+                'heading' => $team['league']['name'],
+                'controller' => 'leagues',
+                'action' => 'view',
+                'id' => $team['league']['id'],
+                'buttons' => [
+                    'View Team Schedule' => [
+                        'controller' => 'teams',
+                        'action' => 'schedule',
+                        'id' => $id,
+                        '?' => ['season' => $season['id']]
+                    ],
+                    'Select Team' => [
+                        'controller' => 'teams',
+                        'action' => 'schedule',
+                        '?' => ['season' => $season['id']],
+                        'buttons' => $teamsList
+                    ]
+                ]
+            ]
+        ]);
         $this->set('nav', $nav->getNav());
     }
     
@@ -130,7 +133,7 @@ class TeamsController extends AppController {
         $games = $query->toArray();
         $this->set('games', $games);      
         
-        // Seasons
+        // Season
         $seasonsTable = TableRegistry::get('Seasons');
         $query = $seasonsTable
                 ->find()
@@ -149,12 +152,11 @@ class TeamsController extends AppController {
         $team = $query->first();
         $this->set('team', $team);
         
-        // Teams
-        $teamsList = [];
-        foreach ($games as $game) {
-            $teamsList[$game['home_team_id']] = $game['home_team']['name'];
-            $teamsList[$game['away_team_id']] = $game['away_team']['name'];
-        }
+        // Teams this season
+        $teamsList = TeamsController::teamsThisSeason($seasonId);
+        
+        // Seasons this team
+        $seasonsList = SeasonsController::seasonsThisTeam($teamId);
         
         $nav = new Navigation([
             'subNav' => [
@@ -163,22 +165,43 @@ class TeamsController extends AppController {
                 'action' => 'view',
                 'id' => $season['league']['id'],
                 'buttons' => [
-                    'Full League Schedule' => [
-                        'controller' => 'seasons',
+                    'View Team Roster' => [
+                        'controller' => 'teams',
                         'action' => 'view',
-                        'id' => $season['id'],
+                        'id' => $teamId
                     ],
                     'Select Team' => [
                         'controller' => 'teams',
                         'action' => 'schedule',
-                        'id' => $teamId,
                         '?' => ['season' => $season['id']],
                         'buttons' => $teamsList
+                    ],
+                    'Select Season' => [
+                        'controller' => 'seasons',
+                        'action' => 'view',
+                        'id' => $season['id'],
+                        '?' => ['team' => $teamId],
+                        'buttons' => $seasonsList
                     ]
                 ]
             ]
         ]);
         
         $this->set('nav', $nav->getNav());
+    }
+    
+    public static function teamsThisSeason($seasonId) {
+        $seasonsTeamsTable = TableRegistry::get('SeasonsTeams');
+        $query = $seasonsTeamsTable
+                ->find()
+                ->contain(['Teams'])
+                ->where(['SeasonsTeams.season_id' => $seasonId])
+                ->order(['SeasonsTeams.team_id' => 'asc'])
+                ->hydrate(false);
+        $teamsList = $query->toArray();
+        $teamsList = Hash::combine($teamsList,
+                '{n}.team_id',
+                '{n}.team.name');
+        return $teamsList;
     }
 }

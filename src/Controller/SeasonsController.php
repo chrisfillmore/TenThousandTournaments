@@ -3,6 +3,7 @@ namespace App\Controller;
 
 use Cake\ORM\TableRegistry;
 use Cake\Utility\Hash;
+use Cake\Routing\Router;
 
 class SeasonsController extends AppController {
 
@@ -14,50 +15,8 @@ class SeasonsController extends AppController {
     
     public function view($id = null) {
         if (!$id) { throw new NotFoundException(__('Invalid Season')); }
-        
-        $seasonsTable = TableRegistry::get('Seasons');
-        $query = $seasonsTable
-                ->find()
-                ->contain([
-                    'Teams',
-                    'Leagues'
-                ])
-                ->where(['Seasons.id'  => $id]);
-        $season = $query->first();
-        $this->set('season', $season);
-        
-        $gamesTable = TableRegistry::get('Games');
-        $query = $gamesTable
-                ->find()
-                ->contain([
-                    'HomeTeams',
-                    'AwayTeams'
-                ])
-                ->where(['Games.season_id' => $id])
-                ->order(['Games.date_time' => 'ASC']);
-        $games = $query->toArray();
-        $this->set('games', $games);
-        
-        $teams = AppController::recursiveObjectToArray($season['teams']);
-        $teams = Hash::combine($teams, '{n}.id', '{n}.name');
-        
-        $nav = new Navigation(
-                [
-                    'heading' => $season['league']['name'],
-                    'controller' => 'leagues',
-                    'action' => 'view',
-                    'id' => $season['league']['id'],
-                    'buttons' =>
-                    [
-                        'Teams' =>
-                        [
-                            'controller' => 'teams',
-                            'action' => 'view',
-                            'buttons' => $teams
-                        ]
-                    ]
-                ]);
-        $this->set('nav', $nav->getNav());
+        $teamId = $this->request->query('team');
+        $this->redirect('/teams/schedule/' . $teamId . '/?season=' . $id);
     }
     
     public function schedule($id = null) {
@@ -104,5 +63,20 @@ class SeasonsController extends AppController {
                     ]
                 ]);
         $this->set('nav', $nav->getNav());
+    }
+    
+    public static function seasonsThisTeam($teamId) {
+        $seasonsTeamsTable = TableRegistry::get('SeasonsTeams');
+        $query = $seasonsTeamsTable
+                ->find()
+                ->contain(['Seasons'])
+                ->where(['SeasonsTeams.team_id' => $teamId])
+                ->order(['SeasonsTeams.season_id' => 'desc'])
+                ->hydrate(false);
+        $seasonsList = $query->toArray();
+        $seasonsList = Hash::combine($seasonsList,
+                '{n}.season_id',
+                '{n}.season.year');
+        return $seasonsList;
     }
 }

@@ -35,6 +35,7 @@ $title = 'Ten Thousand Tournaments';
     <?= $this->fetch('meta') ?>
     <?= $this->fetch('css') ?>
     <?= $this->fetch('script') ?>
+    <link href='http://fonts.googleapis.com/css?family=Droid+Sans|Signika' rel='stylesheet' type='text/css'>
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">    
     <!-- Bootstrap theme CSS -->
@@ -48,17 +49,21 @@ $title = 'Ten Thousand Tournaments';
 <body role="document">
     <?= $this->element('topnav'); ?>
     <div class="container" role="main">
-        <?= $this->Flash->render() ?>
+        <?= $this->Flash->render(); ?>
         <?php if ($subNav) echo $this->element('subnav'); ?>
         <?= $this->fetch('content') ?>
         <hr>
         <footer>
-            <p>&copy; Ten Thousand Tournaments 2014</p>
+            <p>&copy; <?= $this->Html->link(
+                    'Ten Thousand Tournaments',
+                    [
+                        'controller' => 'pages',
+                        'action' => 'home'
+                    ]); ?>
+                    2014
+            </p>
         </footer>
     </div>
-    
-    
-
     <!-- jQuery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <!-- Bootstrap JavaScript -->

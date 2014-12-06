@@ -2,7 +2,15 @@ body {
   padding-top: 70px;
   padding-bottom: 30px;
   color: #286090;
+  font-family: 'Droid Sans';
 }
+
+h1,
+h2,
+h3 {
+    font-family: 'Signika';
+}
+
 
 .theme-dropdown .dropdown-menu {
   position: static;
