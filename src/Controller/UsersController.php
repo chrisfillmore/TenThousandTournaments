@@ -92,7 +92,7 @@ class UsersController extends AppController {
                 $this->Flash->success(__('New user created. Thank you for registering.'));
                 return $this->redirect(['action' => 'index']);
             }
-            $this->Flash->error(__('Unable to add user'));
+            $this->Flash->error(__('Unable to add user.'));
         }
         $this->set('user', $user);
     }

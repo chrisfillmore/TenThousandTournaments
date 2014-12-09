@@ -6,6 +6,7 @@ use App\Model\Table\TenThousandTable;
 
 class TeamsTable extends TenThousandTable {
     public function initialize(array $config) {
+        $this->belongsTo('Reps');
         $this->belongsToMany('Seasons');
         $this->belongsToMany('Players');
         $this->belongsTo('Leagues', ['className' => 'Seasons.Leagues']);

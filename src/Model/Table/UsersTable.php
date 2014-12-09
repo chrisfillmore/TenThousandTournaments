@@ -35,6 +35,12 @@ class UsersTable extends Table {
                 ->notEmpty('username', 'A username is required')
                 ->notEmpty('password', 'A password is required')
                 ->notEmpty('first_name', 'Your first name is required')
-                ->notEmpty('last_name', 'Your last name is required');
+                ->notEmpty('last_name', 'Your last name is required')
+                ->add('username', [
+                    'unique' => [
+                        'rule' => 'validateUnique',
+                        'provider' => 'table'
+                    ]
+                ]);
     }
 }

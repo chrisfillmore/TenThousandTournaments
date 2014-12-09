@@ -6,7 +6,7 @@ use Cake\ORM\TableRegistry;
 use Cake\Utility\Hash;
 
 class SportsController extends AppController {
-    public $helpers = array('Html');
+    public $helpers = array('Html', 'Url');
 
     public function index() {
         $sports = TableRegistry::get('Sports');
@@ -14,9 +14,17 @@ class SportsController extends AppController {
                 ->find()
                 ->contain([
                     'Leagues'
-                ]);
+                ])
+                ->hydrate(false);
         if (!$query) { throw new NotFoundException(__('No Sports')); }
-        $this->set('sports', $query->toArray());
+        $sports = $query->toArray();
+        $this->set('sports', $sports);
+        
+        $leagues = [];
+        foreach ($sports as $sport)
+            $leagues = array_merge($leagues, $sport['leagues']);
+        $leagues = Hash::combine($leagues, '{n}.id', '{n}.name');
+        $this->set('leagues', $leagues);
         
         $nav = new Navigation([
             'subNav' => [
@@ -51,6 +59,8 @@ class SportsController extends AppController {
         
         $sport = $query->first();
         $this->set('sport', $sport);
+
+        $sports = SportsController::getAllSports();
         
         $nav = new Navigation([
             'subNav' => [
@@ -61,7 +71,7 @@ class SportsController extends AppController {
                     'Select Sport' => [
                         'controller' => 'sports',
                         'action' => 'view',
-                        'buttons' => SportsController::getAllSports()
+                        'buttons' => $sports
                     ]
                 ]
             ]

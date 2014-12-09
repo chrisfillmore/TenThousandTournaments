@@ -40,9 +40,11 @@ class TeamsController extends AppController {
                 ->contain([
                     'Players.Users',
                     'Leagues',
-                    'Seasons'
+                    'Seasons',
+                    'Reps'
                     ])
-                ->where(['Teams.id' => $id]);
+                ->where(['Teams.id' => $id])
+                ->hydrate(false);
         if (!$query) { throw new NotFoundException(__('No Team')); }
         $team = $query->first();
         $this->set('team', $team);        
@@ -60,21 +62,19 @@ class TeamsController extends AppController {
                     'AwayTeams'
                     ])
                 ->where([
+                    'Games.date_time >' => date('Y-m-d'),
                     'OR' => [
                         ['Games.home_team_id' => $id],
                         ['Games.away_team_id' => $id]
                     ]
                 ])
-                ->order(['Games.date_time' => 'DESC']);
-        $nextGame = $query->first();
+                ->order(['Games.date_time' => 'ASC'])
+                ->limit(3);
+        $nextGame = $query->toArray();
         
-        $this->set('games', [$nextGame]);
+        $this->set('games', $nextGame);
+
         
-        // Players
-        $players = AppController::recursiveObjectToArray($team['players']);
-        $players = Hash::combine($players,
-                '{n}.id',
-                ['%s %s', '{n}.user.first_name', '{n}.user.last_name']);
         
         // Teams in the current season
         $teamsList = TeamsController::teamsThisSeason($season['id']);
@@ -89,9 +89,9 @@ class TeamsController extends AppController {
             'id' => $team['league']['id'],
             'subNav' => [
                 'heading' => $team['name'],
-                'controller' => 'leagues',
+                'controller' => 'teams',
                 'action' => 'view',
-                'id' => $team['league']['id'],
+                'id' => $team['id'],
                 'buttons' => [
                     'Schedule' => [
                         'controller' => 'teams',
@@ -101,7 +101,7 @@ class TeamsController extends AppController {
                     ],
                     'Teams' => [
                         'controller' => 'teams',
-                        'action' => 'schedule',
+                        'action' => 'view',
                         '?' => ['season' => $season['id']],
                         'buttons' => $teamsList
                     ],
@@ -179,9 +179,9 @@ class TeamsController extends AppController {
             'id' => $season['league']['id'],
             'subNav' => [
                 'heading' => $team['name'],
-                'controller' => 'leagues',
+                'controller' => 'teams',
                 'action' => 'view',
-                'id' => $season['league']['id'],
+                'id' => $team['id'],
                 'buttons' => [
                     'Roster' => [
                         'controller' => 'teams',
@@ -206,6 +206,60 @@ class TeamsController extends AppController {
         ]);
         
         $this->set('nav', $nav->getNav());
+    }
+    
+    public function add() {
+        $this->subNav = false;
+        $this->set('subNav', $this->subNav);
+        $this->set('leagues', LeaguesController::getAllLeagues());
+        if (!$this->Auth->user('id')) {
+            $this->Flash->default(__('You must log in to proceed.'));
+            $this->redirect($this->Auth->redirectUrl());
+        }
+        
+        $team = $this->Teams->newEntity($this->request->data);
+        
+        // Check if this user is already a player
+        $playersTable = TableRegistry::get('Players');
+        $query = $playersTable->find();
+        $query->select([
+                    'count' => $query->func()->count('*')
+                ])
+                ->where(['id' => $team['rep_id']])
+                ->hydrate(false);
+        $count = $query->first()['count'];
+        
+        if ($count == 0) {
+            $player = $playersTable->newEntity(['id' => $team['rep_id']]);
+            if ($this->request->is('post'))
+                $this->Teams->Reps->Players->save($player);
+        }
+        
+        // Check if this user is already a rep
+        $repsTable = TableRegistry::get('Reps');
+        $query = $repsTable->find();
+        $query->select([
+                    'count' => $query->func()->count('*')
+                ])
+                ->where(['id' => $team['rep_id']])
+                ->hydrate(false);
+        $count = $query->first()['count'];
+        
+        if ($count == 0) {
+            $rep = $repsTable->newEntity(['id' => $team['rep_id']]);
+            if ($this->request->is('post'))
+                $this->Teams->Reps->save($rep);
+        }
+        
+        // Add the team
+        if ($this->request->is('post')) {
+            if ($this->Teams->save($team)) {
+                $this->Flash->success(__('Your team has been registered!'));
+                return $this->redirect(['action' => 'index']);
+            }
+            $this->Flash->error(__('Unable to register your team.'));
+        }
+        $this->set('team', $team);
     }
     
     public static function teamsThisSeason($seasonId) {

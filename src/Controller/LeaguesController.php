@@ -139,4 +139,15 @@ class LeaguesController extends AppController {
         
         $this->set('nav', $nav->getNav());
     }
+    
+    public static function getAllLeagues() {
+        $leaguesTable = TableRegistry::get('Leagues');
+        $query = $leaguesTable
+                ->find()
+                ->hydrate(false);
+        if (!$query) { throw new NotFoundException(__('No Leagues')); }
+        $leagues = $query->toArray();
+        $leagues = Hash::combine($leagues, '{n}.id', '{n}.name');
+        return $leagues;
+    }
 }

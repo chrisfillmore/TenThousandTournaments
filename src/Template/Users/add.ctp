@@ -3,9 +3,8 @@ $this->layout = 'default';
 echo $this->Html->css('register',['inline' => false]);
 ?>
 
-<div id="register">
-<?php
-    echo $this->Form->create(
+<div id="register"><?=
+    $this->Form->create(
         $user,
         [
             'class' => 'form-signin',
@@ -42,14 +41,6 @@ echo $this->Html->css('register',['inline' => false]);
                 'placeholder' => 'Password',
                 'required' => true,
                 'class' => 'form-control'
-            ]);
-    echo $this->Form->input(
-            'confirmPassword',
-            [
-                'placeholder' => 'Confirm Password',
-                'required' => true,
-                'class' => 'form-control',
-                'type' => 'password'
             ]);
     echo $this->Form->button(
             __('Register'),
