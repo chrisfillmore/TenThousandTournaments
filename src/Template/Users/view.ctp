@@ -1,14 +1,21 @@
 <?php $this->layout = 'default'; ?>
 
-<h1><?= $user['first_name'] . ' ' . $user['last_name']; ?></h1>
-
-<div class="panel panel-primary">
+<?php foreach ($userInfo as $group) : ?>
+<div class="panel panel-info">
     <div class="panel-heading">
-        <h3 class="panel-title">Groups</h3>
+        <h3 class="panel-title"><?= $group['name']; ?></h3>
     </div>
     <div class="panel-body">
-        <?php foreach ($user['groups'] as $group) : ?>
-        <p><?= $group['title']['name']; ?></p>
+        <?php foreach ($group['values'] as $id => $name) : ?>
+        <p><?= $this->Html->link(
+                $name,
+                [
+                    'controller' => $group['controller'],
+                    'action' => 'view',
+                    $id
+                ]
+                ); ?></p>
         <?php endforeach; ?>
     </div>
 </div>
+<?php endforeach; ?>

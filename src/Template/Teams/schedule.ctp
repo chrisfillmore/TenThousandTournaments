@@ -3,7 +3,7 @@
 <div class="panel panel-info">
     <div class="panel-heading">
         <h3 class="panel-title"><?= $this->Html->link(
-                $team['name'],
+                $season['year'] . ' Season Schedule',
                 [
                     'controller' => 'teams',
                     'action' => 'view',

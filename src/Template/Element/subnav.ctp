@@ -23,12 +23,12 @@
     <div id="navbar2" class="navbar-collapse collapse">
       <ul class="nav navbar-nav navbar-right">
             <?php
-            foreach ($nav['subNav']['buttons'] as $name => $menu) :
+            foreach ($nav['subNav']['buttons'] as $buttonName => $menu) :
                 if ($menu['buttons']) : ?>
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" 
                role="button" aria-expanded="false">
-                        <?= $name; ?>&nbsp;<span class="caret"></span>
+                        <?= $buttonName; ?>&nbsp;<span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu" role="menu"><?php
                         foreach ($menu['buttons'] as $id => $link) : ?>
@@ -50,7 +50,7 @@
                     <li><?php
                 endif;
                 echo $this->Html->link(
-                        $name,
+                        $buttonName,
                         [
                             'controller' => $menu['controller'],
                             'action' => $menu['action'],

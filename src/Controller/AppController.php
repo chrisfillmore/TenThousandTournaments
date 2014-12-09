@@ -17,6 +17,7 @@ namespace App\Controller;
 use Cake\Controller\Controller;
 use App\Exception\TenThousandException;
 use Cake\Event\Event;
+use Cake\ORM\TableRegistry;
 
 /**
  * Application Controller
@@ -53,12 +54,19 @@ class AppController extends Controller {
                 'home'
             ]
         ]);
-        $loggedIn = $this->Auth->user('id');
-        $this->set('loggedIn', $loggedIn);
+        
+        if ($this->Auth->user('id')) {
+            $id = $this->Auth->user('id');
+            $name = $this->Auth->user('first_name') . ' ' . $this->Auth->user('last_name');
+            $this->set('userLoggedIn', $id);
+            $this->set('name', $name);
+        } else {
+            $this->set('userLoggedIn', false);
+        }
     }
     
     public function beforeFilter(Event $event) {
-        $this->Auth->allow(['index', 'view']);
+        $this->Auth->allow();
     }
     
     static function replaceSpaces($input) {

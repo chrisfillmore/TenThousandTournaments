@@ -22,32 +22,45 @@
             } ?>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
-            <?php if ($loggedIn) : ?>
+            <?php if ($userLoggedIn) : ?>
             <ul class="nav navbar-nav navbar-right">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" 
+                       role="button" aria-expanded="false"><?= $name ?> &nbsp;
+                       <span class="caret"></span></a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><?= $this->Html->link(
+                            'View Profile',
+                            [
+                                'controller' => 'users',
+                                'action' => 'view',
+                                $userLoggedIn
+                            ]); ?>
+                        </li>
+                        <li><?= $this->Html->link(
+                            'Log Out',
+                            [
+                                'controller' => 'users',
+                                'action' => 'logout'
+                            ]); ?>
+                        </li>
+                    </ul>
+                </li>
                 <li>
-                    <form class="navbar-form navbar-right" role="form">
-                        <button class="btn btn-success" href="<?=
-                        $this->Url->build([
-                            'controller' => 'users',
-                            'action' => 'logout'
-                        ]); ?>">Log out
-                        </button>
+                    <form class="navbar-form" role="form">
+                        <a class="btn btn-success" role="button" href="<?= $this->Url->build([
+                    'controller' => 'users',
+                    'action' => 'logout'
+                    ]); ?>">Log Out</a>
                     </form>
                 </li>
             </ul>
             <?php else : ?>
-            <form class="navbar-form navbar-right" role="form" action="<?=
-            $this->Url->build([
-                'controller' => 'users',
-                'action' => 'login'
-            ]); ?>">
-                <div class="form-group">
-                    <input class="form-control" type="text" placeholder="Username" autocomplete="off"></input>
-                </div>
-                <div class="form-group">
-                    <input class="form-control" type="password" placeholder="Password" autocomplete="off"></input>
-                </div>
-                <button class="btn btn-success" type="submit">Log in</button>
+            <form class="navbar-form navbar-right" role="form">
+                <a class="btn btn-success" role="button" href="<?= $this->Url->build([
+                    'controller' => 'users',
+                    'action' => 'login'
+                    ]); ?>">Log In</a>
                 <a class="btn btn-primary" role="button" href="<?= $this->Url->build([
                     'controller' => 'users',
                     'action' => 'add'

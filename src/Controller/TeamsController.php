@@ -79,24 +79,38 @@ class TeamsController extends AppController {
         // Teams in the current season
         $teamsList = TeamsController::teamsThisSeason($season['id']);
         
+        // Seasons this team has played
+        $seasonsList = SeasonsController::seasonsThisTeam($id);
+        
         $nav = new Navigation([
+            'heading' => $team['league']['name'],
+            'controller' => 'leagues',
+            'action' => 'view',
+            'id' => $team['league']['id'],
             'subNav' => [
-                'heading' => $team['league']['name'],
+                'heading' => $team['name'],
                 'controller' => 'leagues',
                 'action' => 'view',
                 'id' => $team['league']['id'],
                 'buttons' => [
-                    'View Team Schedule' => [
+                    'Schedule' => [
                         'controller' => 'teams',
                         'action' => 'schedule',
                         'id' => $id,
                         '?' => ['season' => $season['id']]
                     ],
-                    'Select Team' => [
+                    'Teams' => [
                         'controller' => 'teams',
                         'action' => 'schedule',
                         '?' => ['season' => $season['id']],
                         'buttons' => $teamsList
+                    ],
+                    'Seasons' => [
+                        'controller' => 'seasons',
+                        'action' => 'view',
+                        'id' => $season['id'],
+                        '?' => ['team' => $id],
+                        'buttons' => $seasonsList
                     ]
                 ]
             ]
@@ -159,24 +173,28 @@ class TeamsController extends AppController {
         $seasonsList = SeasonsController::seasonsThisTeam($teamId);
         
         $nav = new Navigation([
+            'heading' => $season['league']['name'],
+            'controller' => 'leagues',
+            'action' => 'view',
+            'id' => $season['league']['id'],
             'subNav' => [
-                'heading' => $season['league']['name'],
+                'heading' => $team['name'],
                 'controller' => 'leagues',
                 'action' => 'view',
                 'id' => $season['league']['id'],
                 'buttons' => [
-                    'View Team Roster' => [
+                    'Roster' => [
                         'controller' => 'teams',
                         'action' => 'view',
                         'id' => $teamId
                     ],
-                    'Select Team' => [
+                    'Teams' => [
                         'controller' => 'teams',
                         'action' => 'schedule',
                         '?' => ['season' => $season['id']],
                         'buttons' => $teamsList
                     ],
-                    'Select Season' => [
+                    'Seasons' => [
                         'controller' => 'seasons',
                         'action' => 'view',
                         'id' => $season['id'],

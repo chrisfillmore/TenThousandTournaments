@@ -50,6 +50,7 @@ $title = 'Ten Thousand Tournaments';
     <?= $this->element('topnav'); ?>
     <div class="container" role="main">
         <?= $this->Flash->render(); ?>
+        <?= $this->Flash->render('auth'); ?>
         <?php if ($subNav) echo $this->element('subnav'); ?>
         <?= $this->fetch('content') ?>
         <hr>
