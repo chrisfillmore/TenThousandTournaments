@@ -30,10 +30,10 @@
                        <span class="caret"></span></a>
                     <ul class="dropdown-menu" role="menu">
                         <li><?= $this->Html->link(
-                            'View Profile',
+                            'Edit Profile',
                             [
                                 'controller' => 'users',
-                                'action' => 'view',
+                                'action' => 'edit',
                                 $userLoggedIn
                             ]); ?>
                         </li>
@@ -43,7 +43,9 @@
                                 'controller' => 'users',
                                 'action' => 'logout'
                             ]); ?>
-                        </li>
+                        </li><?php
+                        if ($adminNav)
+                            echo $this->element('adminnav'); ?>
                     </ul>
                 </li>
                 <li>

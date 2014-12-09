@@ -43,6 +43,7 @@ class AppController extends Controller {
         $nav = new Navigation();
         $this->set('nav', $nav->getNav());
         $this->set('subNav', $this->subNav);
+        $this->set('adminNav', false);
         
         $this->loadComponent('Auth', [
             'loginRedirect' => [
@@ -60,6 +61,7 @@ class AppController extends Controller {
             $name = $this->Auth->user('first_name') . ' ' . $this->Auth->user('last_name');
             $this->set('userLoggedIn', $id);
             $this->set('name', $name);
+            $this->set('adminNav', $this->getUserManageMenu($id));
         } else {
             $this->set('userLoggedIn', false);
         }
@@ -67,6 +69,55 @@ class AppController extends Controller {
     
     public function beforeFilter(Event $event) {
         $this->Auth->allow();
+    }
+    
+    public function getUserManageMenu($id) {
+        $adminNav = [];
+        $teamsTable = TableRegistry::get('Teams');
+        $query = $teamsTable
+                ->find()
+                ->select(['id', 'name'])
+                ->where(['Teams.rep_id' => $id])
+                ->hydrate(false);
+        $teams = $query->toArray();
+        if ($teams) {
+            foreach ($teams as $team) {
+                $i = count($adminNav);
+                $adminNav[$i]['name'] = $team['name'];
+                $adminNav[$i]['controller'] = 'teams';
+                $adminNav[$i]['id'] = $team['id'];
+            }
+        }
+        
+        $adminsLeaguesTable = TableRegistry::get('AdminsLeaguesRoles');
+        $query = $adminsLeaguesTable
+                ->find()
+                ->distinct(['league_id'])
+                ->contain(['Leagues'])
+                ->where(['AdminsLeaguesRoles.admin_id' => $id])
+                ->hydrate(false);
+        $leagues = $query->toArray();
+        
+        if ($leagues) {
+            foreach ($leagues as $league) {
+                $i = count($adminNav);
+                $adminNav[$i]['name'] = $league['league']['name'];
+                $adminNav[$i]['controller'] = 'leagues';
+                $adminNav[$i]['id'] = $league['league']['id'];
+            }
+        }
+        return $adminNav;
+    }
+    
+    protected function addUserToGroup($userId, $groupId) {
+        $usersGroupsTable = TableRegistry::get('GroupsUsers');
+        $query = $usersGroupsTable->query();
+        $query->insert(['user_id', 'group_id'])
+                ->values([
+                    'user_id' => $userId,
+                    'group_id' => $groupId
+                ])
+                ->execute();
     }
     
     static function replaceSpaces($input) {

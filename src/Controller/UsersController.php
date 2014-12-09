@@ -11,7 +11,6 @@ class UsersController extends AppController {
     public $helpers = array('Html');
 
     public function beforeFilter(Event $event) {
-        parent::beforeFilter($event);
         $this->Auth->allow(['add', 'logout']);
     }
     
@@ -97,6 +96,24 @@ class UsersController extends AppController {
         $this->set('user', $user);
     }
     
+    public function edit($id = null) {
+        if (!$id) { throw new NotFoundException(__('Invalid user')); }
+        
+        $this->set('subNav', false);
+        
+        $user = $this->Users->get($id);
+        if ($this->request->is(['post', 'put'])) {
+            $this->Users->patchEntity($user, $this->request->data);
+            if ($this->Users->save($user)) {
+                $this->Flash->success(__('Your profile has been updated.'));
+                return $this->redirect(['action' => 'index']);
+            }
+            $this->Flash->error(__('Unable to update your profile.'));
+        }
+
+        $this->set('user', $user);
+    }
+    
     protected function getUserAssociations(array $groups) {
         $models = [
             1 => 'Admins.Leagues',
@@ -110,13 +127,13 @@ class UsersController extends AppController {
         return $contain;
     }
     
+    
     protected function getExtendedUserInfo($user) {
         $groups = Hash::combine($user['groups'], '{n}.id', '{n}.title');
         
         define('ADMIN_GROUP_ID', 1);
         define('PLAYER_GROUP_ID', 2);
         
-        /* Magic numbers galore */
         if (array_key_exists('admin', $user)) {
             $leagues = Hash::combine($user['admin']['leagues'], '{n}.id', '{n}.name');
             $groups[ADMIN_GROUP_ID]['controller'] = 'leagues';

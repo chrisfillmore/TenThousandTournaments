@@ -373,7 +373,7 @@ unset($columns);
 unset($inserts);
 unset($value); */
 
-/* GROUPS_USERS */
+/* GROUPS_USERS 
 
 $data = [];
 
@@ -392,4 +392,67 @@ unset($data);
 unset($table);
 unset($columns);
 unset($inserts);
-unset($value);
+unset($value); */
+
+/* Team Reps 
+
+$data = [];
+
+for ($t = 1; $t <= 200; $t++) {
+    $high = $t * 10;
+    $low = $high - 9;
+    $rep = rand($low, $high);
+    $data[$t] = [$rep];
+}
+
+$table = 'reps';
+$columns = ['id'];
+
+$inserts = createInserts($data, $table, $columns);
+
+foreach ($inserts as $value) {
+    echo $value . '<br>';
+}
+
+$updates = [];
+foreach ($data as $teamId => $repId) {
+    $updates[] =
+            'UPDATE teams SET rep_id = ' . $repId[0] . ' ' .
+            'WHERE teams.id = ' . $teamId . ';';
+}
+
+foreach ($updates as $value)
+    echo $value . '<br>';
+*/
+
+/* Player jersey numbers */
+
+function allPossibleNumbers() {
+    $numbers = [];
+    for ($n = 1; $n < 100; $n++)
+        $numbers[$n] = $n;
+    return $numbers;
+}
+
+$data = [];
+
+$availableNumbers = allPossibleNumbers();
+for ($p = 1; $p <= 2000; $p++) {
+    $i = array_rand($availableNumbers);
+    $data[$p] = [$availableNumbers[$i]];
+    unset($availableNumbers[$i]);
+    if (($p) % 10 == 1 && $p != 1)
+        $availableNumbers = allPossibleNumbers();
+}
+
+$table = 'players';
+$columns = ['id', 'jersey_number'];
+
+foreach ($data as $playerId => $jerseyNumber) {
+    $updates[] =
+            'UPDATE players SET jersey_number = \'' . $jerseyNumber[0] . '\' ' .
+            'WHERE players.id = ' . $playerId . ';';
+}
+
+foreach ($updates as $value)
+    echo $value . '<br>';

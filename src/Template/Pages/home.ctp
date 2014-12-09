@@ -1,7 +1,7 @@
 <?php $this->layout = 'default'; ?>
 
 <div class="jumbotron">
-    <h1>Your solution for scaleable sports league management</h1>
+    <h1>The premier solution for sports league management online</h1>
     <p>Ten Thousand Tournaments is the scaleable sports league management system.</p>
 </div>
 

@@ -5,9 +5,14 @@ namespace App\Controller;
 use Cake\ORM\TableRegistry;
 use Cake\Utility\Hash;
 use Cake\Network\Exception\NotFoundException;
+use Cake\Event\Event;
 
 class LeaguesController extends AppController {
-    public $helpers = array('Html');
+    public $helpers = ['Html', 'Url'];
+    
+    public function beforeFilter(Event $event) {
+        $this->Auth->allow(['index', 'view']);
+    }
     
     public function index() {
         $leaguesTable = TableRegistry::get('Leagues');
@@ -52,11 +57,15 @@ class LeaguesController extends AppController {
                 ->contain([
                     'Sports'
                 ])
-                //->group('Admins.id')
                 ->where(['Leagues.id' => $id]);
         
         if (!$query) { throw new NotFoundException(__('Invalid League')); }
         $league = $query->first();
+        
+        if (!$league['is_active']) {
+            $this->Flash->default(__('This league has not been activated yet.'));
+            return $this->redirect('/leagues');
+        }
         $this->set('league', $league);
         
         // Get info about the current season
@@ -71,6 +80,11 @@ class LeaguesController extends AppController {
         if (!$query) { throw new NotFoundException(__('No Seasons')); }
         $season = $query->first();
         $this->set('season', $season);
+        
+        if (!$season) {
+            $this->Flash->default(__('That league has not scheduled a season yet.'));
+            return $this->redirect('/leagues');
+        }
         
         $gamesTable = TableRegistry::get('Games');
         $query = $gamesTable
@@ -94,12 +108,12 @@ class LeaguesController extends AppController {
                         'Admins.Users' => ['foreignKey' => 'id'],
                         'Roles.Titles'=> ['foreignKey' => 'title_id']
                     ])
-                ->where(['league_id' => $id]);
+                ->where(['league_id' => $id])
+                ->hydrate(false);
         $admins = $query->toArray();
         if (!$admins) { throw new NotFoundException(__('No Admins')); }
         
         // Begin seriously massaging the data
-        $admins = AppController::recursiveObjectToArray($admins);
         $admins_roles = Hash::combine($admins,
                 '{n}.role_id',
                 '{n}.role.title.name',
@@ -163,12 +177,12 @@ class LeaguesController extends AppController {
                 ->hydrate(false);
         $count = $query->first()['count'];
         
-        // if not, then add user to admin table
+        // if not, then add user to admin table and add to admin group
         if ($count == 0) {
             $admin = $adminsTable->newEntity(['id' => $userId]);
             $this->Leagues->Admins->save($admin);
+            $this->addUserToGroup($userId, 1);
         }
-        
         
         // make the league
         if ($this->request->is('post')) {
@@ -176,6 +190,7 @@ class LeaguesController extends AppController {
                 $leaguesTable = TableRegistry::get('Leagues');
                 $query = $leaguesTable
                         ->find()
+                        ->select(['id'])
                         ->order(['id' => 'DESC']);
                 $league = $query->first();
                 
@@ -194,6 +209,43 @@ class LeaguesController extends AppController {
             }
             $this->Flash->error(__('Unable to create your league.'));
         }
+        $this->set('league', $league);
+    }
+    
+    public function edit($id = null) {
+        if (!$id) { throw new NotFoundException(__('Invalid League')); }
+        
+        $userId = $this->Auth->user('id');
+        // check if the user is an admin of this league
+        $adminsLeaguesTable = TableRegistry::get('AdminsLeaguesRoles');
+        $query = $adminsLeaguesTable
+                ->find()
+                ->select([
+                    'count' => $query->func()->count('*')
+                ])
+                ->where([
+                    'AdminsLeaguesRoles.league_id' => $id,
+                    'AdminsleaguesRoles.admin_id' => $userId
+                ]);
+        $isAdmin = $query->toArray();
+        if (!$isAdmin) {
+            $this->Flash->error(__('You do not have permissiont to modify this league.'));
+            return $this->redirect(['action' => 'index']);
+        }
+        
+        
+        $this->set('subNav', false);
+        
+        $league = $this->Leagues->get($id);
+        if ($this->request->is(['post', 'put'])) {
+            $this->Leagues->patchEntity($league, $this->request->data);
+            if ($this->Leagues->save($league)) {
+                $this->Flash->success(__('Your league has been updated.'));
+                return $this->redirect(['action' => 'index']);
+            }
+            $this->Flash->error(__('Unable to update your league.'));
+        }
+
         $this->set('league', $league);
     }
     

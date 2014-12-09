@@ -22,10 +22,15 @@ namespace App\Controller;
 use Cake\ORM\TableRegistry;
 use Cake\Utility\Hash;
 use Cake\Network\Exception\NotFoundException;
+use Cake\Event\Event;
 
 class TeamsController extends AppController {
     
     public $helpers = array('Html');
+    
+    public function beforeFilter(Event $event) {
+        $this->Auth->allow(['index', 'view']);
+    }
     
     public function index() {
         $this->redirect('/leagues');
@@ -48,6 +53,12 @@ class TeamsController extends AppController {
                 ->hydrate(false);
         if (!$query) { throw new NotFoundException(__('No Team')); }
         $team = $query->first();
+        
+        if (!$team['is_active']) {
+            $this->Flash->default(__('This team has not been activated yet.'));
+            return $this->redirect('/leagues');
+        }
+        
         $this->set('team', $team);        
         
         // Current season
@@ -213,7 +224,7 @@ class TeamsController extends AppController {
         $userId = $this->Auth->user('id');
         if (!$userId) {
             $this->Flash->default(__('You must log in to proceed.'));
-            $this->redirect($this->Auth->redirectUrl());
+            return $this->redirect($this->Auth->redirectUrl());
         }
         
         $this->subNav = false;
@@ -236,6 +247,7 @@ class TeamsController extends AppController {
         if ($count == 0) {
             $player = $playersTable->newEntity(['id' => $userId]);
             $this->Teams->Reps->Players->save($player);
+            $this->addUserToGroup($userId, 2);
         }
         
         // Check if this user is already a rep
@@ -257,11 +269,45 @@ class TeamsController extends AppController {
         // Add the team
         if ($this->request->is('post')) {
             if ($this->Teams->save($team)) {
+                $teamsTable = TableRegistry::get('Teams');
+                $query = $teamsTable
+                        ->find()
+                        ->select(['id'])
+                        ->order(['id' => 'DESC']);
+                $team = $query->first();
+                
+                $playersTeamsTable = TableRegistry::get('PlayersTeams');
+                $query = $playersTeamsTable->query();
+                $query->insert(['player_id', 'team_id'])
+                        ->values([
+                            'player_id' => $userId,
+                            'team_id' => $team['id']
+                        ])
+                        ->execute();
+                
                 $this->Flash->success(__('Your team has been registered!'));
                 return $this->redirect(['action' => 'index']);
             }
             $this->Flash->error(__('Unable to register your team.'));
         }
+        $this->set('team', $team);
+    }
+    
+    public function edit($id = null) {
+        if (!$id) { throw new NotFoundException(__('Invalid team')); }
+        
+        $this->set('subNav', false);
+        
+        $team = $this->Teams->get($id);
+        if ($this->request->is(['post', 'put'])) {
+            $this->Teams->patchEntity($team, $this->request->data);
+            if ($this->Teams->save($team)) {
+                $this->Flash->success(__('Your team has been updated.'));
+                return $this->redirect(['action' => 'index']);
+            }
+            $this->Flash->error(__('Unable to update your team.'));
+        }
+
         $this->set('team', $team);
     }
     
