@@ -140,6 +140,63 @@ class LeaguesController extends AppController {
         $this->set('nav', $nav->getNav());
     }
     
+    public function add() {
+        $userId = $this->Auth->user('id');
+        if (!$userId) {
+            $this->Flash->default(__('You must log in to proceed.'));
+            $this->redirect($this->Auth->redirectUrl());
+        }
+        
+        $this->subNav = false;
+        $this->set('subNav', $this->subNav);
+        $this->set('sports', SportsController::getAllSports());
+        
+        $league = $this->Leagues->newEntity($this->request->data);
+        
+        // Check if this user is already an admin
+        $adminsTable = TableRegistry::get('Admins');
+        $query = $adminsTable->find();
+        $query->select([
+                    'count' => $query->func()->count('*')
+                ])
+                ->where(['id' => $userId])
+                ->hydrate(false);
+        $count = $query->first()['count'];
+        
+        // if not, then add user to admin table
+        if ($count == 0) {
+            $admin = $adminsTable->newEntity(['id' => $userId]);
+            $this->Leagues->Admins->save($admin);
+        }
+        
+        
+        // make the league
+        if ($this->request->is('post')) {
+            if ($this->Leagues->save($league)) {
+                $leaguesTable = TableRegistry::get('Leagues');
+                $query = $leaguesTable
+                        ->find()
+                        ->order(['id' => 'DESC']);
+                $league = $query->first();
+                
+                $adminsLeaguesTable = TableRegistry::get('AdminsLeaguesRoles');
+                $query = $adminsLeaguesTable->query();
+                $query->insert(['admin_id', 'league_id', 'role_id'])
+                        ->values([
+                            'admin_id' => $userId,
+                            'league_id' => $league['id'],
+                            'role_id' => 1
+                        ])
+                        ->execute();
+                
+                $this->Flash->success(__('Your league has been created!'));
+                return $this->redirect(['action' => 'index']);
+            }
+            $this->Flash->error(__('Unable to create your league.'));
+        }
+        $this->set('league', $league);
+    }
+    
     public static function getAllLeagues() {
         $leaguesTable = TableRegistry::get('Leagues');
         $query = $leaguesTable

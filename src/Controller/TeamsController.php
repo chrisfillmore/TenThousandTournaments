@@ -21,6 +21,7 @@ namespace App\Controller;
 
 use Cake\ORM\TableRegistry;
 use Cake\Utility\Hash;
+use Cake\Network\Exception\NotFoundException;
 
 class TeamsController extends AppController {
     
@@ -209,13 +210,15 @@ class TeamsController extends AppController {
     }
     
     public function add() {
-        $this->subNav = false;
-        $this->set('subNav', $this->subNav);
-        $this->set('leagues', LeaguesController::getAllLeagues());
-        if (!$this->Auth->user('id')) {
+        $userId = $this->Auth->user('id');
+        if (!$userId) {
             $this->Flash->default(__('You must log in to proceed.'));
             $this->redirect($this->Auth->redirectUrl());
         }
+        
+        $this->subNav = false;
+        $this->set('subNav', $this->subNav);
+        $this->set('leagues', LeaguesController::getAllLeagues());
         
         $team = $this->Teams->newEntity($this->request->data);
         
@@ -225,14 +228,14 @@ class TeamsController extends AppController {
         $query->select([
                     'count' => $query->func()->count('*')
                 ])
-                ->where(['id' => $team['rep_id']])
+                ->where(['id' => $userId])
                 ->hydrate(false);
         $count = $query->first()['count'];
         
+        // if not, then add user to player table
         if ($count == 0) {
-            $player = $playersTable->newEntity(['id' => $team['rep_id']]);
-            if ($this->request->is('post'))
-                $this->Teams->Reps->Players->save($player);
+            $player = $playersTable->newEntity(['id' => $userId]);
+            $this->Teams->Reps->Players->save($player);
         }
         
         // Check if this user is already a rep
@@ -241,14 +244,14 @@ class TeamsController extends AppController {
         $query->select([
                     'count' => $query->func()->count('*')
                 ])
-                ->where(['id' => $team['rep_id']])
+                ->where(['id' => $userId])
                 ->hydrate(false);
         $count = $query->first()['count'];
         
+        // if not, then add user to rep table
         if ($count == 0) {
-            $rep = $repsTable->newEntity(['id' => $team['rep_id']]);
-            if ($this->request->is('post'))
-                $this->Teams->Reps->save($rep);
+            $rep = $repsTable->newEntity(['id' => $userId]);
+            $this->Teams->Reps->save($rep);
         }
         
         // Add the team

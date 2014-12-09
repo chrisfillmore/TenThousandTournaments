@@ -2,39 +2,39 @@
 
 <div class="panel panel-info">
     <div class="panel-heading">
-        <h3 class="panel-title">Register a New Team</h3>
+        <h3 class="panel-title">Create a New League</h3>
     </div>
     <div class="panel-body"><?php
         echo $this->form->create(
-                $team,
+                $league,
                 [
                     'class' => 'form-horizontal',
                     'role' => 'form'
                 ]); ?>
         <div class="col-sm-10 form-group"><?php
         echo $this->Form->input(
-                'Teams.name',
+                'Leagues.name',
                 [
-                    'placeholder' => 'Team Name',
+                    'placeholder' => 'League Name',
                     'required' => true,
                     'class' => 'form-control',
-                    'label' => 'Team Name'
+                    'label' => 'League Name'
                 ]); ?>
         </div>
         <div class="col-sm-10 form-group"><?php
         echo $this->Form->select(
-                'Teams.league_id',
-                $leagues,
+                'Leagues.sport_id',
+                $sports,
                 [
-                    'empty' => '(Choose a League)',
+                    'empty' => '(Choose a Sport)',
                     'class' => 'form-control',
-                    'label' => 'League',
+                    'label' => 'Sport',
                     'required' => true
                 ]); ?>
         </div>
         <div class="col-sm-10 form-group"><?php
         echo $this->Form->button(
-                __('Register'),
+                __('Create This League'),
                 [
                     'class' => 'btn btn-success'
                 ]); ?>
