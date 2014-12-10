@@ -99,6 +99,14 @@ class UsersController extends AppController {
     public function edit($id = null) {
         if (!$id) { throw new NotFoundException(__('Invalid user')); }
         
+        // check if this is the right user
+        $userId = $this->Auth->user('id');
+        
+        if ($userId != $id) {
+            $this->Flash->error(__('You do not have permission to modify this user.'));
+            return $this->redirect(['action' => 'index']);
+        }
+        
         $this->set('subNav', false);
         
         $user = $this->Users->get($id);

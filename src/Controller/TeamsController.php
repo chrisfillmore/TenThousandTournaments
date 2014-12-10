@@ -62,7 +62,13 @@ class TeamsController extends AppController {
         $this->set('team', $team);        
         
         // Current season
-        $season = Hash::sort($team['seasons'], '{n}.year', 'desc')[0];
+        if ($team['seasons']) {
+            $season = Hash::sort($team['seasons'], '{n}.year', 'desc')[0];
+        } else {
+            $this->Flash->default(__('This team has not yet been added to a Season.'));
+            return $this->redirect(['action' => 'index']);
+        }
+        
         
         // Next game
         $gamesTable = TableRegistry::get('Games');
@@ -295,6 +301,25 @@ class TeamsController extends AppController {
     
     public function edit($id = null) {
         if (!$id) { throw new NotFoundException(__('Invalid team')); }
+        
+        $userId = $this->Auth->user('id');
+        
+        // check if the user is the rep for this team
+        $teamsTable = TableRegistry::get('Teams');
+        $query = $teamsTable->find();
+        $query->select([
+                    'count' => $query->func()->count('*')
+                ])
+                ->where([
+                    'Teams.id' => $id,
+                    'Teams.rep_id' => $userId
+                ]);
+        $isRep = $query->first()['count'];
+        
+        if (!$isRep) {
+            $this->Flash->error(__('You do not have permission to modify this team.'));
+            return $this->redirect(['action' => 'index']);
+        }
         
         $this->set('subNav', false);
         

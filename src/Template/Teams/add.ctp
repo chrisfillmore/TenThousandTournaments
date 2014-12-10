@@ -6,15 +6,13 @@
     </div>
     <div class="panel-body"><?php
         echo $this->form->create(
-                $team,
-                [
+                $team, [
                     'class' => 'form-horizontal',
                     'role' => 'form'
                 ]); ?>
         <div class="col-sm-10 form-group"><?php
         echo $this->Form->input(
-                'Teams.name',
-                [
+                'Teams.name', [
                     'placeholder' => 'Team Name',
                     'required' => true,
                     'class' => 'form-control',
@@ -24,8 +22,7 @@
         <div class="col-sm-10 form-group"><?php
         echo $this->Form->select(
                 'Teams.league_id',
-                $leagues,
-                [
+                $leagues, [
                     'empty' => '(Choose a League)',
                     'class' => 'form-control',
                     'label' => 'League',

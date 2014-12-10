@@ -23,6 +23,14 @@
                 ]); ?>
         </div>
         <div class="col-sm-10 form-group"><?php
+        echo $this->Form->input(
+                'Teams.is_active', [
+                    'type' => 'checkbox',
+                    'checked' => (bool)$team['is_active'],
+                    'label' => 'Activate Team'
+                ]); ?>
+        </div>
+        <div class="col-sm-10 form-group"><?php
         echo $this->Form->button(
                 __('Update Team'),
                 [

@@ -216,27 +216,41 @@ class LeaguesController extends AppController {
         if (!$id) { throw new NotFoundException(__('Invalid League')); }
         
         $userId = $this->Auth->user('id');
+        
         // check if the user is an admin of this league
         $adminsLeaguesTable = TableRegistry::get('AdminsLeaguesRoles');
-        $query = $adminsLeaguesTable
-                ->find()
-                ->select([
+        $query = $adminsLeaguesTable->find();
+        $query->select([
                     'count' => $query->func()->count('*')
                 ])
                 ->where([
                     'AdminsLeaguesRoles.league_id' => $id,
                     'AdminsleaguesRoles.admin_id' => $userId
                 ]);
-        $isAdmin = $query->toArray();
+        $isAdmin = $query->first()['count'];
+        
         if (!$isAdmin) {
-            $this->Flash->error(__('You do not have permissiont to modify this league.'));
+            $this->Flash->error(__('You do not have permission to modify this league.'));
             return $this->redirect(['action' => 'index']);
         }
-        
         
         $this->set('subNav', false);
         
         $league = $this->Leagues->get($id);
+        $seasons = $this->Leagues
+                ->find()
+                ->contain(['Seasons.Teams'])
+                ->where(['Leagues.id' => $id])
+                ->hydrate(false)
+                ->first()['seasons'];
+        
+        if ($seasons) {
+            $seasons = Hash::sort($seasons, '{n}.year', 'desc');
+            $this->set('currentSeason', $seasons[0]);
+        } else
+            $this->set('currentSeason', false);
+        
+        
         if ($this->request->is(['post', 'put'])) {
             $this->Leagues->patchEntity($league, $this->request->data);
             if ($this->Leagues->save($league)) {

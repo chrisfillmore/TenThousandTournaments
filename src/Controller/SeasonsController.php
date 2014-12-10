@@ -4,10 +4,15 @@ namespace App\Controller;
 use Cake\ORM\TableRegistry;
 use Cake\Utility\Hash;
 use Cake\Routing\Router;
+use Cake\Event\Event;
 
 class SeasonsController extends AppController {
 
     public $helpers = array('Html');
+    
+    public function beforeFilter(Event $event) {
+        $this->Auth->allow(['schedule']);
+    }
     
     public function index() {
         $this->redirect('/leagues');
@@ -63,6 +68,26 @@ class SeasonsController extends AppController {
                     ]
                 ]);
         $this->set('nav', $nav->getNav());
+    }
+    
+    public function add() {
+        if (array_key_exists('league', $this->request->query))
+            $leagueId = $this->request->query['league'];
+        else {
+            $this->Flash->error(__('Cannot create Season: League not specified.'));
+            return $this->redirect(['action' => 'index']);
+        }
+
+        $season = $this->Seasons->newEntity([
+            'year' => date('Y') + 1,
+            'league_id' => $leagueId
+        ]);
+        
+        if ($this->Seasons->save($season)) {        
+            $this->Flash->success(__('Your season has been created!'));
+            return $this->redirect(['action' => 'index']);
+        }
+        $this->Flash->error(__('Unable to create your league.'));
     }
     
     public static function seasonsThisTeam($teamId) {
