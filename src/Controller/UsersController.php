@@ -8,13 +8,16 @@ use Cake\Event\Event;
 use Cake\Utility\Hash;
 
 class UsersController extends AppController {
-    public $helpers = array('Html');
+    public $helpers = ['Html', 'Url', 'Form'];
 
     public function beforeFilter(Event $event) {
         $this->Auth->allow(['add', 'logout']);
     }
     
     public function login() {
+        if ($this->Auth->user('id'))
+            return $this->redirect($this->Auth->redirectUrl());
+        
         $this->subNav = false;
         $this->set('subNav', $this->subNav);
         $this->set('user', null);
@@ -82,14 +85,18 @@ class UsersController extends AppController {
     }
     
     public function add() {
+        if ($this->Auth->user('id'))
+            return $this->redirect($this->Auth->redirectUrl());
+        
         $this->subNav = false;
         $this->set('subNav', $this->subNav);
         
         $user = $this->Users->newEntity($this->request->data);
         if ($this->request->is('post')) {
             if ($this->Users->save($user)) {
+                $this->Auth->setUser($user->toArray());
                 $this->Flash->success(__('New user created. Thank you for registering.'));
-                return $this->redirect(['action' => 'index']);
+                return $this->redirect(['controller' => 'leagues']);
             }
             $this->Flash->error(__('Unable to add user.'));
         }

@@ -26,10 +26,10 @@ use Cake\Event\Event;
 
 class TeamsController extends AppController {
     
-    public $helpers = array('Html');
+    public $helpers = ['Html', 'Url', 'Form'];
     
     public function beforeFilter(Event $event) {
-        $this->Auth->allow(['index', 'view']);
+        $this->Auth->allow(['index', 'view', 'schedule']);
     }
     
     public function index() {
@@ -292,7 +292,10 @@ class TeamsController extends AppController {
                         ->execute();
                 
                 $this->Flash->success(__('Your team has been registered!'));
-                return $this->redirect(['action' => 'index']);
+                return $this->redirect([
+                    'action' => 'edit',
+                    $team['id']
+                ]);
             }
             $this->Flash->error(__('Unable to register your team.'));
         }

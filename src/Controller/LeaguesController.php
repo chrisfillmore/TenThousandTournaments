@@ -8,7 +8,7 @@ use Cake\Network\Exception\NotFoundException;
 use Cake\Event\Event;
 
 class LeaguesController extends AppController {
-    public $helpers = ['Html', 'Url'];
+    public $helpers = ['Html', 'Url', 'Form'];
     
     public function beforeFilter(Event $event) {
         $this->Auth->allow(['index', 'view']);
@@ -205,7 +205,10 @@ class LeaguesController extends AppController {
                         ->execute();
                 
                 $this->Flash->success(__('Your league has been created!'));
-                return $this->redirect(['action' => 'index']);
+                return $this->redirect([
+                    'action' => 'edit',
+                    $league['id']
+                ]);
             }
             $this->Flash->error(__('Unable to create your league.'));
         }
@@ -225,7 +228,7 @@ class LeaguesController extends AppController {
                 ])
                 ->where([
                     'AdminsLeaguesRoles.league_id' => $id,
-                    'AdminsleaguesRoles.admin_id' => $userId
+                    'AdminsLeaguesRoles.admin_id' => $userId
                 ]);
         $isAdmin = $query->first()['count'];
         

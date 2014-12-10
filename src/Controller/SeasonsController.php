@@ -8,10 +8,10 @@ use Cake\Event\Event;
 
 class SeasonsController extends AppController {
 
-    public $helpers = array('Html');
+    public $helpers = ['Html', 'Url', 'Form'];
     
     public function beforeFilter(Event $event) {
-        $this->Auth->allow(['schedule']);
+        $this->Auth->allow(['index', 'view', 'schedule']);
     }
     
     public function index() {
@@ -21,6 +21,13 @@ class SeasonsController extends AppController {
     public function view($id = null) {
         if (!$id) { throw new NotFoundException(__('Invalid Season')); }
         $teamId = $this->request->query('team');
+        if (!$teamId) {
+            return $this->redirect([
+                'controller' => 'seasons',
+                'action' => 'schedule',
+                $id
+            ]);
+        }
         $this->redirect('/teams/schedule/' . $teamId . '/?season=' . $id);
     }
     
@@ -31,43 +38,14 @@ class SeasonsController extends AppController {
         $query = $seasonsTable
                 ->find()
                 ->contain([
-                    'Teams',
-                    'Leagues',
-                    'Games'
+                    'Leagues'
                 ])
                 ->where(['Seasons.id' => $id])
-                ->order(['Seasons.year' => 'DESC']);
+                ->hydrate(false);
         if (!$query) { throw new NotFoundException(__('No Season')); }
         
-        $season = $query->first();
-        $this->set('season', $season);
-        
-        $teams = AppController::recursiveObjectToArray($season['teams']);
-        $teams = Hash::combine($teams, '{n}.id', '{n}.name');
-        
-        $nav = new Navigation([
-                    'heading' => $season['league']['name'],
-                    'controller' => 'leagues',
-                    'action' => 'view',
-                    'id' => $season['league']['id'],
-                    'buttons' =>
-                    [
-                        $season['year'] . ' Season' =>
-                        [
-                            'controller' => 'seasons',
-                            'action' => 'view',
-                            'id' => $season['id']
-                        ],
-                        'Team Schedules' =>
-                        [
-                            'controller' => 'teams',
-                            'action' => 'schedule',
-                            '?' => ['season' => $season['id']],
-                            'buttons' => $teams
-                        ]
-                    ]
-                ]);
-        $this->set('nav', $nav->getNav());
+        $leagueId = $query->first()['league_id'];
+        $this->redirect('/leagues/view/' . $leagueId);
     }
     
     public function add() {
@@ -85,7 +63,11 @@ class SeasonsController extends AppController {
         
         if ($this->Seasons->save($season)) {        
             $this->Flash->success(__('Your season has been created!'));
-            return $this->redirect(['action' => 'index']);
+            return $this->redirect([
+                'controller' => 'leagues',
+                'action' => 'edit',
+                $leagueId
+            ]);
         }
         $this->Flash->error(__('Unable to create your league.'));
     }

@@ -14,7 +14,7 @@ use Cake\ORM\TableRegistry;
 
 class LocationsController extends AppController {
     
-    public $helpers = ['Html'];
+    public $helpers = ['Html', 'Url', 'Form'];
     
     public function view($id = null) {
         if (!$id) { throw new NotFoundException(__('Invalid Location')); }

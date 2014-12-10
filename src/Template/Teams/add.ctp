@@ -19,6 +19,12 @@
                     'label' => 'Team Name'
                 ]); ?>
         </div>
+        <div style="display: none;"><?php
+        echo $this->Form->text(
+                'Teams.rep_id', [
+                    'value' => $userLoggedIn
+                ]); ?>
+        </div>
         <div class="col-sm-10 form-group"><?php
         echo $this->Form->select(
                 'Teams.league_id',
@@ -31,8 +37,7 @@
         </div>
         <div class="col-sm-10 form-group"><?php
         echo $this->Form->button(
-                __('Register'),
-                [
+                __('Register'), [
                     'class' => 'btn btn-success'
                 ]); ?>
         </div><?php

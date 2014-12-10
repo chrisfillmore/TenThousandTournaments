@@ -6,7 +6,7 @@ use Cake\ORM\TableRegistry;
 use Cake\Utility\Hash;
 
 class SportsController extends AppController {
-    public $helpers = array('Html', 'Url');
+    public $helpers = ['Html', 'Url', 'Form'];
 
     public function index() {
         $sports = TableRegistry::get('Sports');
